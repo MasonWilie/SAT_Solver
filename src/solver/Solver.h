@@ -3,7 +3,6 @@
 
 #include "Clause.h"
 #include "BacktrackingHeuristics.h"
-#include "BranchingHeuristics.h"
 #include <fstream>
 #include <cmath>
 

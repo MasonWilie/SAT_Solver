@@ -9,30 +9,30 @@
  * 
  * @param chosen_prop Proposition that was previously chosen
  */
-void StandardBacktracking::Update(AtomicProposition* chosen_prop)
+void DpllBacktracking::Update(PropDecision chosen_prop)
 {
-    if (history.size() != 0 && history.top().regular == chosen_prop->GetInverse())
+    if (history.size() != 0 && history.top().regular == chosen_prop.prop->GetInverse())
     {
-        history.top().notted = chosen_prop;
-    }else if (history.size() != 0 &&  history.top().notted == chosen_prop->GetInverse())
+        history.top().notted = chosen_prop.prop;
+    }else if (history.size() != 0 &&  history.top().notted == chosen_prop.prop->GetInverse())
     {
-        history.top().regular = chosen_prop;
+        history.top().regular = chosen_prop.prop;
     }else
     {
-        StandardBacktracking::BacktrackingNode node;
-        if (chosen_prop->IsNot())
+        DpllBacktracking::BacktrackingNode node;
+        if (chosen_prop.prop->IsNot())
         {
-            node.notted = chosen_prop;
+            node.notted = chosen_prop.prop;
             node.regular = nullptr;
         }else
         {
-            node.regular = chosen_prop;
+            node.regular = chosen_prop.prop;
             node.notted = nullptr;
         }
         history.push(node);
     }
 
-    history.top().last_set = chosen_prop;
+    history.top().last_set = chosen_prop.prop;
 }
 
 /**
@@ -45,7 +45,7 @@ void StandardBacktracking::Update(AtomicProposition* chosen_prop)
  * @param set_props Propositions that are currently set (asserted)
  * @return AtomicProposition* Suggestion for the next proposition to set. If nullptr, then UNSAT.
  */
-AtomicProposition* StandardBacktracking::Backtrack(ClauseSetUnique_t &clauses, PropSetRaw_t &unset_props, PropSetRaw_t &set_props)
+AtomicProposition* DpllBacktracking::Backtrack(ClauseSetUnique_t &clauses, PropSetRaw_t &unset_props, PropSetRaw_t &set_props)
 {
     if (history.size() == 0)
     {
@@ -89,7 +89,7 @@ AtomicProposition* StandardBacktracking::Backtrack(ClauseSetUnique_t &clauses, P
  * @brief Resets the algorithm so that it forgets its history.
  * 
  */
-void StandardBacktracking::Reset()
+void DpllBacktracking::Reset()
 {
     while (history.size() != 0)
     {

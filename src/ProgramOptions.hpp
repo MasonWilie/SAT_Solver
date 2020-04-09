@@ -36,7 +36,7 @@ ProgramOptions GetProgramOptions(int argc, char** argv)
         ("mom-branch", "Use MOMs branching algorithm")
         ("jw-one-branch", "Use the one sided Jeroslow-Wang branching algorithm")
         ("jw-two-branch", "Use the two sided Jeroslow-Wang branching algorithm")
-        ("standard-backtrack", "Use the standard backtracking algorithm (default)");
+        ("dpll-backtrack", "Use the dpll backtracking algorithm (default)");
 
     boost::program_options::variables_map vm;
     boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
@@ -84,10 +84,10 @@ ProgramOptions GetProgramOptions(int argc, char** argv)
     std::cout << std::endl;
 
     std::cout << "Backtrack type: ";
-    if (vm.count("standard-backtrack"))
+    if (vm.count("dpll-backtrack"))
     {
-        opts.backtrack_type = BacktrackingHeuristic::BacktrackingType::STANDARD;
-        std::cout << "Standard";
+        opts.backtrack_type = BacktrackingHeuristic::BacktrackingType::DPLL;
+        std::cout << "DPLL";
     }else
     {
         std::cout << "ERROR - None specified\n";

@@ -1,6 +1,6 @@
 project(Core)
 
-set ( CMAKE_CXX_FLAGS "-Wall -O4")
+set ( CMAKE_CXX_FLAGS "-g -Wall")
 
 # All sources that also need to be tested in unit tests go into a static library
 add_library(core_lib STATIC ${CMAKE_CURRENT_SOURCE_DIR}/logic/AtomicProposition.h
@@ -15,7 +15,9 @@ add_library(core_lib STATIC ${CMAKE_CURRENT_SOURCE_DIR}/logic/AtomicProposition.
                             ${CMAKE_CURRENT_SOURCE_DIR}/heuristics/BacktrackingHeuristics.h
                             ${CMAKE_CURRENT_SOURCE_DIR}/heuristics/BacktrackingHeuristics.cpp
                             ${CMAKE_CURRENT_SOURCE_DIR}/heuristics/BranchingHeuristics.h
-                            ${CMAKE_CURRENT_SOURCE_DIR}/heuristics/BranchingHeuristics.cpp)
+                            ${CMAKE_CURRENT_SOURCE_DIR}/heuristics/BranchingHeuristics.cpp
+                            ${CMAKE_CURRENT_SOURCE_DIR}/heuristics/Graph.h
+                            ${CMAKE_CURRENT_SOURCE_DIR}/heuristics/Graph.cpp)
 
 target_include_directories(core_lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(core_lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/solver)

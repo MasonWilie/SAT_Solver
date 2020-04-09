@@ -53,9 +53,14 @@ size_t GetMaxClauseSize(const ClauseSetUnique_t &clauses)
     return max_clause_size;
 }
 
-RandomBranching::RandomBranching()
+RandomBranching::RandomBranching(PropMapUnique_t &prop_map_unique)
 {
     srand(time(NULL));
+
+    for (auto iter = std::begin(prop_map_unique); iter != std::end(prop_map_unique); std::advance(iter, 1))
+    {
+        raw_prop_map.insert(std::pair<long long, AtomicProposition *>(iter->first, iter->second.get()));
+    }
 }
 
 /**
@@ -69,10 +74,33 @@ RandomBranching::RandomBranching()
  * @param set_props Propositions that are currently set
  * @return AtomicProposition* Next proposition to set
  */
-AtomicProposition *RandomBranching::NextProposition(const ClauseSetUnique_t &clauses,
+PropDecision RandomBranching::NextProposition(const ClauseSetUnique_t &clauses,
                                                     const PropSetRaw_t &unset_props,
                                                     const PropSetRaw_t &set_props) const
 {
+    PropDecision decision;
+
+    for (auto iter = std::begin(clauses); iter != std::end(clauses); std::advance(iter, 1))
+    {
+        if ((*iter)->Size() == 1)
+        {
+            std::set<long long> props = (*iter)->GetPropositionsLongLong();
+
+            for (long long p : props)
+            {
+                AtomicProposition* prop_ptr = raw_prop_map.at(p);
+                decision.clause_buddies.insert(prop_ptr);
+                if (prop_ptr->PresentInClause())
+                {
+                    decision.prop = prop_ptr;
+                    decision.was_unit_clause = true;
+                }
+            }
+            return decision;
+        }
+    }
+
+    // TODO: Build unit propagation into this
     // TODO: Make this more efficient
     PropSetRaw_t::iterator iter;
     do
@@ -81,13 +109,16 @@ AtomicProposition *RandomBranching::NextProposition(const ClauseSetUnique_t &cla
         std::advance(iter, rand() % unset_props.size());
     } while (std::find(std::begin(set_props), std::end(set_props), (*iter)->GetInverse()) != std::end(set_props));
 
-    return *iter;
+    decision.prop = *iter;
+    decision.was_unit_clause = false;
+
+    return decision;
 }
 
 MaxMinClauseHeuristic::MaxMinClauseHeuristic(long long num_vars,
                                              PropMapUnique_t &prop_map_unique)
     : num_vars(num_vars),
-      random_brancher(new RandomBranching)
+      random_brancher(new RandomBranching(prop_map_unique))
 {
     // Create a map from proposition names to their pointers
     for (auto iter = std::begin(prop_map_unique); iter != std::end(prop_map_unique); std::advance(iter, 1))
@@ -96,12 +127,16 @@ MaxMinClauseHeuristic::MaxMinClauseHeuristic(long long num_vars,
     }
 }
 
-AtomicProposition *MaxMinClauseHeuristic::NextProposition(const ClauseSetUnique_t &clauses,
+PropDecision MaxMinClauseHeuristic::NextProposition(const ClauseSetUnique_t &clauses,
                                                           const PropSetRaw_t &unset_props,
                                                           const PropSetRaw_t &set_props) const
 {
+    PropDecision decision;
+
     // Get the current maximum clause size (could change when adding clauses)
     size_t max_clause_size = GetMaxClauseSize(clauses);
+
+    std::map<long long, std::set<long long>> unit_clauses_found;
 
     // Initially, you consider all props
     std::set<long long> props_to_consider;
@@ -136,6 +171,7 @@ AtomicProposition *MaxMinClauseHeuristic::NextProposition(const ClauseSetUnique_
                 {
                     continue;
                 }
+
 
                 // Convert notted props to regular, but remember it was notted
                 bool neg = prop_num < 0;
@@ -199,7 +235,9 @@ AtomicProposition *MaxMinClauseHeuristic::NextProposition(const ClauseSetUnique_
         // If there was a maximum score, return the prop.
         if (!tie)
         {
-            return raw_prop_map.at(best_score_prop);
+            decision.was_unit_clause = clause_size == 1;
+            decision.prop = raw_prop_map.at(best_score_prop);      
+            return decision;
         }
 
         // If there was no max score, narrow the search space and try again
@@ -213,12 +251,22 @@ AtomicProposition *MaxMinClauseHeuristic::NextProposition(const ClauseSetUnique_
     // If there were ties up until the last clause number, choose the first one. Otherwise choose random.
     if (!ties.empty())
     {
-        return raw_prop_map.at(*std::begin(ties));
+        if (!unit_clauses_found.empty())
+        {
+            // decision.prop = raw_prop_map.at(*std::begin(unit_clauses_found));
+            decision.was_unit_clause = true;
+        }else
+        {
+            decision.prop = raw_prop_map.at(*std::begin(ties));
+            decision.was_unit_clause = false;
+        }
     }
     else
     {
-        return random_brancher->NextProposition(clauses, unset_props, set_props);
+        decision =  random_brancher->NextProposition(clauses, unset_props, set_props);
     }
+
+    return decision;
 }
 
 BohmsBranching::BohmsBranching(long long num_vars,
@@ -244,7 +292,7 @@ int MomsBranching::Score(std::pair<int, int> prop_pair) const
 }
 
 JeroslowWang::JeroslowWang(Version version, long long num_vars, PropMapUnique_t &prop_map_unique)
-    : random_brancher(new RandomBranching),
+    : random_brancher(new RandomBranching(prop_map_unique)),
       version(version),
       num_vars(num_vars)
 {
@@ -257,10 +305,34 @@ JeroslowWang::JeroslowWang(Version version, long long num_vars, PropMapUnique_t 
     }
 }
 
-AtomicProposition *JeroslowWang::NextProposition(const ClauseSetUnique_t &clauses,
+PropDecision JeroslowWang::NextProposition(const ClauseSetUnique_t &clauses,
                                                  const PropSetRaw_t &unset_props,
                                                  const PropSetRaw_t &set_props) const
 {
+    PropDecision decision;
+
+    for (auto iter = std::begin(clauses); iter != std::end(clauses); std::advance(iter, 1))
+    {
+        if ((*iter)->Size() == 1)
+        {
+            std::set<long long> props = (*iter)->GetPropositionsLongLong();
+
+            for (long long p : props)
+            {
+                AtomicProposition* prop_ptr = raw_prop_map.at(p);
+                decision.clause_buddies.insert(prop_ptr);
+                if (prop_ptr->PresentInClause())
+                {
+                    decision.prop = prop_ptr;
+                    decision.was_unit_clause = true;
+                }
+            }
+            return decision;
+        }
+    }
+
+    decision.was_unit_clause = false;
+
     size_t max_clause_size = GetMaxClauseSize(clauses);
     std::map<long long, std::vector<int>> prop_count;
 
@@ -369,8 +441,11 @@ AtomicProposition *JeroslowWang::NextProposition(const ClauseSetUnique_t &clause
         float reg_score = prop_scores[max_prop];
         float not_score = prop_scores[-max_prop];
 
-        return raw_prop_map.at((reg_score >= not_score ? max_prop : -max_prop));
+        decision.prop = raw_prop_map.at((reg_score >= not_score ? max_prop : -max_prop));
+    }else
+    {
+        decision.prop = raw_prop_map.at(max_prop);
     }
-    
-    return raw_prop_map.at(max_prop);
+
+    return decision;
 }

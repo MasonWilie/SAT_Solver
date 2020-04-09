@@ -12,6 +12,13 @@
 
 #include "Clause.h"
 
+struct PropDecision
+{
+    AtomicProposition* prop;
+    bool was_unit_clause;
+    std::set<AtomicProposition*> clause_buddies;
+};
+
 /**
  * @brief Virtual class that represents a branching heuristic,
  * which chooses the next variable to assert.
@@ -31,7 +38,7 @@ public:
 
     BranchingHeuristic() = default;
     ~BranchingHeuristic() = default;
-    virtual AtomicProposition *NextProposition(const ClauseSetUnique_t &clauses,
+    virtual PropDecision NextProposition(const ClauseSetUnique_t &clauses,
                                                const PropSetRaw_t &unset_props,
                                                const PropSetRaw_t &set_props) const = 0;
 };
@@ -44,10 +51,13 @@ public:
 class RandomBranching : public BranchingHeuristic
 {
 public:
-    RandomBranching();
-    AtomicProposition *NextProposition(const ClauseSetUnique_t &clauses,
+    RandomBranching(PropMapUnique_t &prop_map_unique);
+    PropDecision NextProposition(const ClauseSetUnique_t &clauses,
                                        const PropSetRaw_t &unset_props,
                                        const PropSetRaw_t &set_props) const;
+
+private:
+    PropMapRaw_t raw_prop_map;
 };
 
 class MaxMinClauseHeuristic : public BranchingHeuristic
@@ -56,7 +66,7 @@ public:
     MaxMinClauseHeuristic(long long num_vars,
                  PropMapUnique_t &prop_map_unique);
 
-    AtomicProposition *NextProposition(const ClauseSetUnique_t &clauses,
+    PropDecision NextProposition(const ClauseSetUnique_t &clauses,
                                        const PropSetRaw_t &unset_props,
                                        const PropSetRaw_t &set_props) const;
 
@@ -107,7 +117,7 @@ public:
 
     JeroslowWang(Version version, long long num_vars, PropMapUnique_t &prop_map_unique);
 
-    AtomicProposition *NextProposition(const ClauseSetUnique_t &clauses,
+    PropDecision NextProposition(const ClauseSetUnique_t &clauses,
                                                const PropSetRaw_t &unset_props,
                                                const PropSetRaw_t &set_props) const;
 

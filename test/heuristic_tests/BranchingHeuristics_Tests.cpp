@@ -4,28 +4,30 @@
 
 TEST(RandomHeuristic, Randomness)
 {
-    RandomBranching rb;
+    
     ClauseSetUnique_t clauses;
-    PropSetUnique_t props_master;
+    PropMapUnique_t props_master;
     PropSetRaw_t props, set_props;
 
     for (long long i = 1; i < 5; i++)
     {
         AtomicProposition::PropPair pair = AtomicProposition::CreatePropPair(i);
-        props_master.insert(std::unique_ptr<AtomicProposition>(pair.regular));
-        props_master.insert(std::unique_ptr<AtomicProposition>(pair.notted));
+        props_master.insert(std::make_pair(i, std::unique_ptr<AtomicProposition>(pair.regular)));
+        props_master.insert(std::make_pair(-i, std::unique_ptr<AtomicProposition>(pair.notted)));
     }
 
-    for (PropSetUnique_t::iterator iter = std::begin(props_master); iter != std::end(props_master); iter++)
+    RandomBranching rb(props_master);
+
+    for (auto iter = std::begin(props_master); iter != std::end(props_master); iter++)
     {
-        props.insert(iter->get());
+        props.insert(iter->second.get());
     }
 
     PropSetRaw_t chosen_props;
 
     for (int i = 0; i < 10000; i++)
     {
-        chosen_props.insert(rb.NextProposition(clauses, props, set_props));
+        chosen_props.insert(rb.NextProposition(clauses, props, set_props).prop);
     }
 
     EXPECT_EQ(chosen_props.size(), props.size());

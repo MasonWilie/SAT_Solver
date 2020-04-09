@@ -42,13 +42,14 @@ inline void ThrowFormatErrorWithUrl()
     throw std::runtime_error("File format error. See http://www.satcompetition.org/2009/format-benchmarks2009.html");
 }
 
+// TODO: Turn this into a static function in the Backtracking Heuristic class
 std::unique_ptr<BacktrackingHeuristic> Solver::CreateBacktrackingHeuristic(BacktrackingHeuristic::BacktrackingType type)
 {
     std::unique_ptr<BacktrackingHeuristic> heuristic;
     switch (type)
     {
-    case BacktrackingHeuristic::BacktrackingType::STANDARD:
-        heuristic = std::unique_ptr<BacktrackingHeuristic>(new StandardBacktracking);
+    case BacktrackingHeuristic::BacktrackingType::DPLL:
+        heuristic = std::unique_ptr<BacktrackingHeuristic>(new DpllBacktracking);
         break;
     default:
         heuristic = nullptr;
@@ -57,13 +58,14 @@ std::unique_ptr<BacktrackingHeuristic> Solver::CreateBacktrackingHeuristic(Backt
     return std::move(heuristic);
 }
 
+// TODO: Turn this into a static function in the the Branching Heuristic class
 std::unique_ptr<BranchingHeuristic> Solver::CreateBranchingHeuristic(BranchingHeuristic::BranchingType type)
 {
     std::unique_ptr<BranchingHeuristic> heuristic;
     switch (type)
     {
     case BranchingHeuristic::BranchingType::RANDOM:
-        heuristic = std::unique_ptr<BranchingHeuristic>(new RandomBranching);
+        heuristic = std::unique_ptr<BranchingHeuristic>(new RandomBranching(prop_map));
         break;
     case BranchingHeuristic::BranchingType::BOHM:
         heuristic = std::unique_ptr<BranchingHeuristic>(new BohmsBranching(num_vars, prop_map));
@@ -121,7 +123,9 @@ Solver::Solution Solver::Solve(const BranchingHeuristic::BranchingType branching
     std::unique_ptr<BacktrackingHeuristic> backtracking_heuristic(CreateBacktrackingHeuristic(backtracking_type));
 
     bool prop_from_backtrack{false};
-    AtomicProposition *next_prop = nullptr;
+    PropDecision next_prop;
+
+    next_prop.prop = nullptr;
 
     do
     {
@@ -130,9 +134,9 @@ Solver::Solution Solver::Solve(const BranchingHeuristic::BranchingType branching
             next_prop = branching_heuristic->NextProposition(clauses, unset_props, set_props);
         }
 
-        unset_props.erase(next_prop);
-        set_props.insert(next_prop);
-        next_prop->Assert();
+        unset_props.erase(next_prop.prop);
+        set_props.insert(next_prop.prop);
+        next_prop.prop->Assert();
         backtracking_heuristic->Update(next_prop);
 
         switch (Status())
@@ -149,14 +153,14 @@ Solver::Solution Solver::Solve(const BranchingHeuristic::BranchingType branching
             return solution;
             break;
         case Solver::FormulaStatus::UNSTAT:
-            next_prop = backtracking_heuristic->Backtrack(clauses, unset_props, set_props);
+            next_prop.prop = backtracking_heuristic->Backtrack(clauses, unset_props, set_props);
             prop_from_backtrack = true;
             break;
         default:
             break;
         }
 
-    } while (next_prop);
+    } while (next_prop.prop);
 
     solution.SAT = false;
     return solution;

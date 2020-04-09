@@ -45,13 +45,13 @@ TEST(Solver, Solve)
 {
     {
         Solver solver("test_data/simple_sat.cnf");
-        Solver::Solution solution = solver.Solve(BranchingHeuristic::BranchingType::RANDOM, BacktrackingHeuristic::BacktrackingType::STANDARD);
+        Solver::Solution solution = solver.Solve(BranchingHeuristic::BranchingType::RANDOM, BacktrackingHeuristic::BacktrackingType::DPLL);
         EXPECT_TRUE(solution.SAT);
     }
     
     {
         Solver solver("test_data/simple_unsat.cnf");
-        Solver::Solution solution = solver.Solve(BranchingHeuristic::BranchingType::RANDOM, BacktrackingHeuristic::BacktrackingType::STANDARD);
+        Solver::Solution solution = solver.Solve(BranchingHeuristic::BranchingType::RANDOM, BacktrackingHeuristic::BacktrackingType::DPLL);
         EXPECT_TRUE(!solution.SAT);
     }
 }

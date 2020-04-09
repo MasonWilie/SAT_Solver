@@ -5,6 +5,7 @@ set(TEST_FILES  ${CMAKE_CURRENT_SOURCE_DIR}/logic_tests/Variable_Tests.cpp
                 ${CMAKE_CURRENT_SOURCE_DIR}/logic_tests/AtomicProposition_Tests.cpp
                 ${CMAKE_CURRENT_SOURCE_DIR}/heuristic_tests/BacktrackingHeuristics_Tests.cpp
                 ${CMAKE_CURRENT_SOURCE_DIR}/heuristic_tests/BranchingHeuristics_Tests.cpp
+                ${CMAKE_CURRENT_SOURCE_DIR}/heuristic_tests/Graph_Tests.cpp
                 Solver_Tests.cpp)
 
 enable_testing()

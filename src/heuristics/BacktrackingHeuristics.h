@@ -2,6 +2,7 @@
 #define BACKTRACKING_HEURISTIC
 
 #include "Clause.h"
+#include "BranchingHeuristics.h"
 #include <bits/stdc++.h> 
 
 /**
@@ -14,13 +15,13 @@ public:
     
     enum class BacktrackingType
     {
-        STANDARD
+        DPLL
     };
 
     BacktrackingHeuristic()=default;
     ~BacktrackingHeuristic()=default;
 
-    virtual void Update(AtomicProposition* chosen_prop)=0;
+    virtual void Update(PropDecision chosen_prop)=0;
     virtual AtomicProposition* Backtrack(ClauseSetUnique_t &clauses, PropSetRaw_t &unset_props, PropSetRaw_t &set_props)=0;
     virtual void Reset()=0;
 };
@@ -32,7 +33,7 @@ public:
  * it has not already been tried.
  * 
  */
-class StandardBacktracking : public BacktrackingHeuristic
+class DpllBacktracking : public BacktrackingHeuristic
 {
 public:
     struct BacktrackingNode
@@ -42,7 +43,7 @@ public:
         AtomicProposition* last_set{nullptr};
     };
 
-    void Update(AtomicProposition* chosen_prop);
+    void Update(PropDecision chosen_prop);
     AtomicProposition* Backtrack(ClauseSetUnique_t &clauses, PropSetRaw_t &unset_props, PropSetRaw_t &set_props);
     void Reset();
 private:
