@@ -75,17 +75,6 @@ BohmsBranching::BohmsBranching(long long num_vars, PropMapUnique_t &prop_map_uni
     {
         raw_prop_map.insert(std::pair<long long, AtomicProposition*>(iter->first, iter->second.get()));
     }
-
-    for (auto clause_iter = std::begin(clauses); clause_iter != std::end(clauses); std::advance(clause_iter, 1))
-    {
-        size_t size = (*clause_iter)->Size();
-        if ( size > max_clause_size)
-        {
-            max_clause_size = size;
-        }
-    }
-
-
 }
 
 /**
@@ -103,6 +92,17 @@ BohmsBranching::BohmsBranching(long long num_vars, PropMapUnique_t &prop_map_uni
 AtomicProposition *BohmsBranching::NextProposition(const ClauseSetUnique_t &clauses, const PropSetRaw_t &unset_props, const PropSetRaw_t &set_props) const
 {
     
+    static int call_count = 0;
+
+    size_t max_clause_size = 0;
+    for (auto clause_iter = std::begin(clauses); clause_iter != std::end(clauses); std::advance(clause_iter, 1))
+    {
+        size_t size = (*clause_iter)->Size();
+        if ( size > max_clause_size)
+        {
+            max_clause_size = size;
+        }
+    }
 
     std::set<long long> props_to_consider;
     for (int i = 0; i < num_vars+1; i++)
@@ -111,6 +111,7 @@ AtomicProposition *BohmsBranching::NextProposition(const ClauseSetUnique_t &clau
         props_to_consider.insert(-i);
     }
 
+    std::set<long long> ties;
     // Start with clauses of size 1, and go all the way up to the maximum clause size if needed
     for (size_t clause_size = 1; clause_size < max_clause_size+1; clause_size++)
     {
@@ -174,8 +175,6 @@ AtomicProposition *BohmsBranching::NextProposition(const ClauseSetUnique_t &clau
         int best_score = -1;
         bool tie = false;
 
-        std::set<long long> ties;
-
         for (auto map_iter = std::begin(prop_map); map_iter != std::end(prop_map); std::advance(map_iter, 1))
         {
             
@@ -191,6 +190,7 @@ AtomicProposition *BohmsBranching::NextProposition(const ClauseSetUnique_t &clau
                 else
                 {
                     ties.clear();
+                    ties.insert(map_iter->first);
                     best_score = score;
                     best_score_prop = map_iter->first;
                     tie = false;
@@ -209,5 +209,13 @@ AtomicProposition *BohmsBranching::NextProposition(const ClauseSetUnique_t &clau
             props_to_consider.insert(p);
         }
     }
-    return random_brancher->NextProposition(clauses, unset_props, set_props);
+
+
+    if (!ties.empty())
+    {
+        return raw_prop_map.at(*std::begin(ties));
+    }else
+    {
+        return random_brancher->NextProposition(clauses, unset_props, set_props);
+    }
 }

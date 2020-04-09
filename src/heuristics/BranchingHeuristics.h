@@ -1,3 +1,6 @@
+#ifndef BRANCHING_HEURISTIC
+#define BRANCHING_HEURISTIC
+
 #include <memory.h>
 #include <vector>
 #include <stdlib.h>
@@ -8,9 +11,6 @@
 #include <math.h>
 
 #include "Clause.h"
-
-#ifndef BRANCHING_HEURISTIC
-#define BRANCHING_HEURISTIC
 
 /**
  * @brief Virtual class that represents a branching heuristic,
@@ -44,6 +44,7 @@ public:
     AtomicProposition* NextProposition(const ClauseSetUnique_t &clauses, const PropSetRaw_t &unset_props, const PropSetRaw_t &set_props) const;
 };
 
+
 class BohmsBranching : public BranchingHeuristic
 {
 public:
@@ -56,11 +57,19 @@ private:
     const long long num_vars;
     PropMapRaw_t raw_prop_map;
 
-    size_t max_clause_size;
-
     const int alpha = 1;
     const int beta = 2;
 };
 
+
+class MomBranching : public BranchingHeuristic
+{
+public:
+    MomBranching();
+    AtomicProposition* NextProposition(const ClauseSetUnique_t &clauses, const PropSetRaw_t &unset_props, const PropSetRaw_t &set_props) const;
+
+private:
+
+};
 
 #endif
