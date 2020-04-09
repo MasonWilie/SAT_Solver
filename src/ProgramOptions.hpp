@@ -34,6 +34,8 @@ ProgramOptions GetProgramOptions(int argc, char** argv)
         ("random-branch", "Use the random backtracking algorithm (default)")
         ("bohm-branch", "Use Bohm's branching algorithm")
         ("mom-branch", "Use MOMs branching algorithm")
+        ("jw-one-branch", "Use the one sided Jeroslow-Wang branching algorithm")
+        ("jw-two-branch", "Use the two sided Jeroslow-Wang branching algorithm")
         ("standard-backtrack", "Use the standard backtracking algorithm (default)");
 
     boost::program_options::variables_map vm;
@@ -65,6 +67,14 @@ ProgramOptions GetProgramOptions(int argc, char** argv)
     {
         opts.branching_type = BranchingHeuristic::BranchingType::MOMS;
         std::cout << "MOM";
+    }else if (vm.count("jw-one-branch"))
+    {
+        opts.branching_type = BranchingHeuristic::BranchingType::JW1;
+        std::cout << "One sided Jeroslow-Wang";
+    }else if (vm.count("jw-two-branch"))
+    {
+        opts.branching_type = BranchingHeuristic::BranchingType::JW1;
+        std::cout << "Two sided Jeroslow-Wang";
     }else
     {
         std::cout << "ERROR - None specified\n";

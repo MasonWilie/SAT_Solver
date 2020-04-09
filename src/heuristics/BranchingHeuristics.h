@@ -24,7 +24,9 @@ public:
     {
         RANDOM,
         BOHM,
-        MOMS
+        MOMS,
+        JW1, // Two sided Jeroslow-Wang
+        JW2 // One sided Jeroslow-Wang
     };
 
     BranchingHeuristic() = default;
@@ -52,8 +54,7 @@ class MaxMinClauseHeuristic : public BranchingHeuristic
 {
 public:
     MaxMinClauseHeuristic(long long num_vars,
-                 PropMapUnique_t &prop_map_unique,
-                 const ClauseSetUnique_t &clauses);
+                 PropMapUnique_t &prop_map_unique);
 
     AtomicProposition *NextProposition(const ClauseSetUnique_t &clauses,
                                        const PropSetRaw_t &unset_props,
@@ -72,8 +73,7 @@ class BohmsBranching : public MaxMinClauseHeuristic
 {
 public:
     BohmsBranching(long long num_vars,
-                   PropMapUnique_t &prop_map_unique,
-                   const ClauseSetUnique_t &clauses);
+                   PropMapUnique_t &prop_map_unique);
 
 private:
     int Score(std::pair<int, int> prop_pair) const;
@@ -86,13 +86,39 @@ class MomsBranching : public MaxMinClauseHeuristic
 {
 public:
     MomsBranching(long long num_vars,
-                  PropMapUnique_t &prop_map_unique,
-                  const ClauseSetUnique_t &clauses);
+                  PropMapUnique_t &prop_map_unique);
 
 private:
     int Score(std::pair<int, int> prop_pair) const;
 
     const float k = 3.0;
+};
+
+
+class JeroslowWang : public BranchingHeuristic
+{
+public:
+    enum class Version
+    {
+        ONE_SIDED,
+        TWO_SIDED
+    };
+
+    JeroslowWang(Version version, long long num_vars, PropMapUnique_t &prop_map_unique);
+
+    AtomicProposition *NextProposition(const ClauseSetUnique_t &clauses,
+                                               const PropSetRaw_t &unset_props,
+                                               const PropSetRaw_t &set_props) const;
+
+private:
+    std::unique_ptr<BranchingHeuristic> random_brancher;
+
+    const Version version;
+    const long long num_vars;
+
+    PropMapRaw_t raw_prop_map;
+
+    float float_error = 1e-9;
 };
 
 #endif
