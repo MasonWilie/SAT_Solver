@@ -10,15 +10,23 @@ std::vector<std::string> Solver::SpaceDelimit(std::string s)
     std::vector<std::string> strings;
     std::string element = "";
 
+    bool saw_char = false;
+
     for (char c : s)
     {
-        if (c == ' ')
+        if (c == ' ' || c == '\t')
         {
+            if (!saw_char)
+            {
+                continue;
+            }
+            saw_char = false;
             strings.push_back(element);
             element = "";
         }
         else
         {
+            saw_char = true;
             element += c;
         }
     }
@@ -58,10 +66,16 @@ std::unique_ptr<BranchingHeuristic> Solver::CreateBranchingHeuristic(BranchingHe
         heuristic = std::unique_ptr<BranchingHeuristic>(new RandomBranching);
         break;
     case BranchingHeuristic::BranchingType::BOHM:
-        heuristic = std::unique_ptr<BranchingHeuristic>(new BohmsBranching(num_vars, prop_map, clauses));
+        heuristic = std::unique_ptr<BranchingHeuristic>(new BohmsBranching(num_vars, prop_map));
         break;
     case BranchingHeuristic::BranchingType::MOMS:
-        heuristic = std::unique_ptr<BranchingHeuristic>(new MomsBranching(num_vars, prop_map, clauses));
+        heuristic = std::unique_ptr<BranchingHeuristic>(new MomsBranching(num_vars, prop_map));
+        break;
+    case BranchingHeuristic::BranchingType::JW1:
+        heuristic = std::unique_ptr<BranchingHeuristic>(new JeroslowWang(JeroslowWang::Version::ONE_SIDED, num_vars, prop_map));
+        break;
+    case BranchingHeuristic::BranchingType::JW2:
+        heuristic = std::unique_ptr<BranchingHeuristic>(new JeroslowWang(JeroslowWang::Version::TWO_SIDED, num_vars, prop_map));
         break;
     default:
         heuristic = nullptr;
