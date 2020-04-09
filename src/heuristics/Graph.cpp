@@ -39,3 +39,8 @@ void Graph::AddEdge(AtomicProposition* from, AtomicProposition* to)
     to_node->backward.insert(from_node);
     from_node->forward.insert(to_node);
 }
+
+void Graph::Reset()
+{
+    prop_to_node.clear();
+}

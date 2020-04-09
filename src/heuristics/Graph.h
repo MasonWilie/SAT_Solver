@@ -28,6 +28,8 @@ public:
     Graph()=default;
     ~Graph()=default;
 
+    void Reset();
+
     void AddNode(AtomicProposition* prop);
     void AddNode(AtomicProposition* from, AtomicProposition* to);
 

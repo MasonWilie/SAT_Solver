@@ -7,32 +7,32 @@
  * stack), then it will be added to the same node one the same level of the stack.
  * Otherwise it will create a new node and increase the size of the stack by 1.
  * 
- * @param chosen_prop Proposition that was previously chosen
+ * @param decision Proposition that was previously chosen
  */
-void DpllBacktracking::Update(PropDecision chosen_prop)
+void DpllBacktracking::Update(PropDecision decision)
 {
-    if (history.size() != 0 && history.top().regular == chosen_prop.prop->GetInverse())
+    if (history.size() != 0 && history.top().regular == decision.prop->GetInverse())
     {
-        history.top().notted = chosen_prop.prop;
-    }else if (history.size() != 0 &&  history.top().notted == chosen_prop.prop->GetInverse())
+        history.top().notted = decision.prop;
+    }else if (history.size() != 0 &&  history.top().notted == decision.prop->GetInverse())
     {
-        history.top().regular = chosen_prop.prop;
+        history.top().regular = decision.prop;
     }else
     {
-        DpllBacktracking::BacktrackingNode node;
-        if (chosen_prop.prop->IsNot())
+        BacktrackingNode node;
+        if (decision.prop->IsNot())
         {
-            node.notted = chosen_prop.prop;
+            node.notted = decision.prop;
             node.regular = nullptr;
         }else
         {
-            node.regular = chosen_prop.prop;
+            node.regular = decision.prop;
             node.notted = nullptr;
         }
         history.push(node);
     }
 
-    history.top().last_set = chosen_prop.prop;
+    history.top().last_set = decision.prop;
 }
 
 /**
@@ -96,3 +96,42 @@ void DpllBacktracking::Reset()
         history.pop();
     }
 }
+
+
+
+/**
+ * @brief Feeds the proposition that was chosen to be asserted into the backtracking
+ * algorithm so that the algorithm can keep track. If the chosen variable is the
+ * inverse of the previously chosen variable (one that is still on the top of the
+ * stack), then it will be added to the same node one the same level of the stack.
+ * Otherwise it will create a new node and increase the size of the stack by 1.
+ * 
+ * @param decision Proposition that was previously chosen
+ */
+void CdclBacktracking::Update(PropDecision decision)
+{
+    graph.AddNode(decision.prop);
+    if (decision.was_unit_clause)
+    {  
+        for (auto p : decision.clause_buddies)
+        {
+            graph.AddEdge(p, decision.prop);
+        }
+    }
+
+    last_set = decision.prop;
+}
+
+
+AtomicProposition* CdclBacktracking::Backtrack(ClauseSetUnique_t &clauses, PropSetRaw_t &unset_props, PropSetRaw_t &set_props)
+{
+
+}
+
+
+void CdclBacktracking::Reset()
+{
+
+}
+
+

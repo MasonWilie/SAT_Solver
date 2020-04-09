@@ -51,6 +51,9 @@ std::unique_ptr<BacktrackingHeuristic> Solver::CreateBacktrackingHeuristic(Backt
     case BacktrackingHeuristic::BacktrackingType::DPLL:
         heuristic = std::unique_ptr<BacktrackingHeuristic>(new DpllBacktracking);
         break;
+    case BacktrackingHeuristic::BacktrackingType::CDCL:
+        heuristic = std::unique_ptr<BacktrackingHeuristic>(new CdclBacktracking);
+        break;
     default:
         heuristic = nullptr;
     }

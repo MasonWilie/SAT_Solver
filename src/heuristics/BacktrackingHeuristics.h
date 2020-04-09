@@ -2,6 +2,7 @@
 #define BACKTRACKING_HEURISTIC
 
 #include "Clause.h"
+#include "Graph.h"
 #include "BranchingHeuristics.h"
 #include <bits/stdc++.h> 
 
@@ -15,13 +16,14 @@ public:
     
     enum class BacktrackingType
     {
-        DPLL
+        DPLL,
+        CDCL
     };
 
     BacktrackingHeuristic()=default;
     ~BacktrackingHeuristic()=default;
 
-    virtual void Update(PropDecision chosen_prop)=0;
+    virtual void Update(PropDecision decision)=0;
     virtual AtomicProposition* Backtrack(ClauseSetUnique_t &clauses, PropSetRaw_t &unset_props, PropSetRaw_t &set_props)=0;
     virtual void Reset()=0;
 };
@@ -43,11 +45,23 @@ public:
         AtomicProposition* last_set{nullptr};
     };
 
-    void Update(PropDecision chosen_prop);
+    void Update(PropDecision decision);
     AtomicProposition* Backtrack(ClauseSetUnique_t &clauses, PropSetRaw_t &unset_props, PropSetRaw_t &set_props);
     void Reset();
 private:
     std::stack<BacktrackingNode> history;
+};
+
+class CdclBacktracking : public BacktrackingHeuristic
+{
+public:
+    void Update(PropDecision decision);
+    AtomicProposition* Backtrack(ClauseSetUnique_t &clauses, PropSetRaw_t &unset_props, PropSetRaw_t &set_props);
+    void Reset();
+
+private:
+    Graph graph;
+    AtomicProposition* last_set;
 };
 
 #endif
