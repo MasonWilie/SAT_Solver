@@ -1,8 +1,8 @@
-#include "Clause.h"
-#include <bits/stdc++.h> 
-
 #ifndef BACKTRACKING_HEURISTIC
 #define BACKTRACKING_HEURISTIC
+
+#include "Clause.h"
+#include <bits/stdc++.h> 
 
 /**
  * @brief Virtual class that represents a branching heuristic

@@ -1,13 +1,12 @@
+#ifndef ATOMIC_PROPOSITION_H
+#define ATOMIC_PROPOSITION_H
+
 #include "Variable.h"
 
 #include <iostream>
 #include <vector>
 #include <set>
 #include <limits>
-
-
-#ifndef ATOMIC_PROPOSITION_H
-#define ATOMIC_PROPOSITION_H
 
 
 class AtomicProposition

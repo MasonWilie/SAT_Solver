@@ -1,8 +1,9 @@
-#include "AtomicProposition.h"
-#include <algorithm>
-
 #ifndef CLAUSE_H
 #define CLAUSE_H
+
+#include "AtomicProposition.h"
+
+#include <algorithm>
 
 
 class Clause

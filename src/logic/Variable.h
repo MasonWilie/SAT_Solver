@@ -1,8 +1,8 @@
-#include <map>
-#include <memory>
-
 #ifndef VARIABLE_H
 #define VARIABLE_H
+
+#include <map>
+#include <memory>
 
 class Variable
 {
