@@ -48,10 +48,10 @@ public:
                                        const PropSetRaw_t &set_props) const;
 };
 
-class MaxMinClause : public BranchingHeuristic
+class MaxMinClauseHeuristic : public BranchingHeuristic
 {
 public:
-    MaxMinClause(long long num_vars,
+    MaxMinClauseHeuristic(long long num_vars,
                  PropMapUnique_t &prop_map_unique,
                  const ClauseSetUnique_t &clauses);
 
@@ -68,7 +68,7 @@ private:
     PropMapRaw_t raw_prop_map;
 };
 
-class BohmsBranching : public MaxMinClause
+class BohmsBranching : public MaxMinClauseHeuristic
 {
 public:
     BohmsBranching(long long num_vars,
@@ -82,7 +82,7 @@ private:
     const int beta = 2;
 };
 
-class MomsBranching : public MaxMinClause
+class MomsBranching : public MaxMinClauseHeuristic
 {
 public:
     MomsBranching(long long num_vars,

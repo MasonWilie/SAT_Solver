@@ -70,7 +70,7 @@ AtomicProposition *RandomBranching::NextProposition(const ClauseSetUnique_t &cla
     return *iter;
 }
 
-MaxMinClause::MaxMinClause(long long num_vars,
+MaxMinClauseHeuristic::MaxMinClauseHeuristic(long long num_vars,
                            PropMapUnique_t &prop_map_unique,
                            const ClauseSetUnique_t &clauses)
     : num_vars(num_vars),
@@ -83,7 +83,7 @@ MaxMinClause::MaxMinClause(long long num_vars,
     }
 }
 
-AtomicProposition *MaxMinClause::NextProposition(const ClauseSetUnique_t &clauses,
+AtomicProposition *MaxMinClauseHeuristic::NextProposition(const ClauseSetUnique_t &clauses,
                                                  const PropSetRaw_t &unset_props,
                                                  const PropSetRaw_t &set_props) const
 {
@@ -219,7 +219,7 @@ AtomicProposition *MaxMinClause::NextProposition(const ClauseSetUnique_t &clause
 BohmsBranching::BohmsBranching(long long num_vars,
                                PropMapUnique_t &prop_map_unique,
                                const ClauseSetUnique_t &clauses)
-    : MaxMinClause(num_vars, prop_map_unique, clauses)
+    : MaxMinClauseHeuristic(num_vars, prop_map_unique, clauses)
 {
 }
 
@@ -231,7 +231,7 @@ int BohmsBranching::Score(std::pair<int, int> prop_pair) const
 MomsBranching::MomsBranching(long long num_vars,
                              PropMapUnique_t &prop_map_unique,
                              const ClauseSetUnique_t &clauses)
-    : MaxMinClause(num_vars, prop_map_unique, clauses)
+    : MaxMinClauseHeuristic(num_vars, prop_map_unique, clauses)
 {
 }
 
