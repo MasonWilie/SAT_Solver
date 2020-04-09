@@ -55,7 +55,9 @@ RandomBranching::RandomBranching()
  * @param set_props Propositions that are currently set
  * @return AtomicProposition* Next proposition to set
  */
-AtomicProposition *RandomBranching::NextProposition(const ClauseSetUnique_t &clauses, const PropSetRaw_t &unset_props, const PropSetRaw_t &set_props) const
+AtomicProposition *RandomBranching::NextProposition(const ClauseSetUnique_t &clauses,
+                                                    const PropSetRaw_t &unset_props,
+                                                    const PropSetRaw_t &set_props) const
 {
     // TODO: Make this more efficient
     PropSetRaw_t::iterator iter;
@@ -68,24 +70,29 @@ AtomicProposition *RandomBranching::NextProposition(const ClauseSetUnique_t &cla
     return *iter;
 }
 
-MaxMinClause::MaxMinClause(long long num_vars, PropMapUnique_t &prop_map_unique, const ClauseSetUnique_t &clauses) : num_vars(num_vars),
-                                                                                    random_brancher(new RandomBranching)
+MaxMinClause::MaxMinClause(long long num_vars,
+                           PropMapUnique_t &prop_map_unique,
+                           const ClauseSetUnique_t &clauses)
+    : num_vars(num_vars),
+      random_brancher(new RandomBranching)
 {
+    // Create a map from proposition names to their pointers
     for (auto iter = std::begin(prop_map_unique); iter != std::end(prop_map_unique); std::advance(iter, 1))
     {
-        raw_prop_map.insert(std::pair<long long, AtomicProposition*>(iter->first, iter->second.get()));
+        raw_prop_map.insert(std::pair<long long, AtomicProposition *>(iter->first, iter->second.get()));
     }
 }
 
-
-AtomicProposition *MaxMinClause::NextProposition(const ClauseSetUnique_t &clauses, const PropSetRaw_t &unset_props, const PropSetRaw_t &set_props) const
+AtomicProposition *MaxMinClause::NextProposition(const ClauseSetUnique_t &clauses,
+                                                 const PropSetRaw_t &unset_props,
+                                                 const PropSetRaw_t &set_props) const
 {
     // Get the current maximum clause size (could change when adding clauses)
     size_t max_clause_size = 0;
     for (auto clause_iter = std::begin(clauses); clause_iter != std::end(clauses); std::advance(clause_iter, 1))
     {
         size_t size = (*clause_iter)->Size();
-        if ( size > max_clause_size)
+        if (size > max_clause_size)
         {
             max_clause_size = size;
         }
@@ -93,7 +100,7 @@ AtomicProposition *MaxMinClause::NextProposition(const ClauseSetUnique_t &clause
 
     // Initially, you consider all props
     std::set<long long> props_to_consider;
-    for (int i = 0; i < num_vars+1; i++)
+    for (int i = 0; i < num_vars + 1; i++)
     {
         props_to_consider.insert(i);
         props_to_consider.insert(-i);
@@ -101,7 +108,7 @@ AtomicProposition *MaxMinClause::NextProposition(const ClauseSetUnique_t &clause
 
     std::set<long long> ties;
     // Start with clauses of size 1, and go all the way up to the maximum clause size if needed
-    for (size_t clause_size = 1; clause_size < max_clause_size+1; clause_size++)
+    for (size_t clause_size = 1; clause_size < max_clause_size + 1; clause_size++)
     {
         std::map<long long, std::pair<int, int>> prop_map;
         // Iterate through all clauses
@@ -115,7 +122,7 @@ AtomicProposition *MaxMinClause::NextProposition(const ClauseSetUnique_t &clause
             }
 
             std::set<long long> props = (*clause_iter)->GetPropositionsLongLong();
-            
+
             // Iterate through each proposition in the clause
             for (long long prop_num : props)
             {
@@ -142,7 +149,8 @@ AtomicProposition *MaxMinClause::NextProposition(const ClauseSetUnique_t &clause
                 if (neg)
                 {
                     prop_map.at(prop_num).second++;
-                }else
+                }
+                else
                 {
                     prop_map.at(prop_num).first++;
                 }
@@ -162,11 +170,11 @@ AtomicProposition *MaxMinClause::NextProposition(const ClauseSetUnique_t &clause
         // Try to find the maximum score for each proposition
         for (auto map_iter = std::begin(prop_map); map_iter != std::end(prop_map); std::advance(map_iter, 1))
         {
-            
+
             int score = Score(map_iter->second);
             if (score >= best_score)
             {
-                
+
                 if (score == best_score)
                 {
                     ties.insert(map_iter->first);
@@ -182,7 +190,7 @@ AtomicProposition *MaxMinClause::NextProposition(const ClauseSetUnique_t &clause
                 }
             }
         }
-        
+
         // If there was a maximum score, return the prop.
         if (!tie)
         {
@@ -201,22 +209,31 @@ AtomicProposition *MaxMinClause::NextProposition(const ClauseSetUnique_t &clause
     if (!ties.empty())
     {
         return raw_prop_map.at(*std::begin(ties));
-    }else
+    }
+    else
     {
         return random_brancher->NextProposition(clauses, unset_props, set_props);
     }
 }
 
-BohmsBranching::BohmsBranching(long long num_vars, PropMapUnique_t &prop_map_unique, const ClauseSetUnique_t &clauses) : MaxMinClause(num_vars, prop_map_unique, clauses)
-{}
+BohmsBranching::BohmsBranching(long long num_vars,
+                               PropMapUnique_t &prop_map_unique,
+                               const ClauseSetUnique_t &clauses)
+    : MaxMinClause(num_vars, prop_map_unique, clauses)
+{
+}
 
 int BohmsBranching::Score(std::pair<int, int> prop_pair) const
 {
     return alpha * max(prop_pair.first, prop_pair.second) + beta * min(prop_pair.first, prop_pair.second);
 }
 
-MomsBranching::MomsBranching(long long num_vars, PropMapUnique_t &prop_map_unique, const ClauseSetUnique_t &clauses) : MaxMinClause(num_vars, prop_map_unique, clauses)
-{}
+MomsBranching::MomsBranching(long long num_vars,
+                             PropMapUnique_t &prop_map_unique,
+                             const ClauseSetUnique_t &clauses)
+    : MaxMinClause(num_vars, prop_map_unique, clauses)
+{
+}
 
 int MomsBranching::Score(std::pair<int, int> prop_pair) const
 {

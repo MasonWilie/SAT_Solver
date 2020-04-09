@@ -27,11 +27,12 @@ public:
         MOMS
     };
 
-    BranchingHeuristic()=default;
-    ~BranchingHeuristic()=default;
-    virtual AtomicProposition* NextProposition(const ClauseSetUnique_t &clauses, const PropSetRaw_t &unset_props, const PropSetRaw_t &set_props) const=0;
+    BranchingHeuristic() = default;
+    ~BranchingHeuristic() = default;
+    virtual AtomicProposition *NextProposition(const ClauseSetUnique_t &clauses,
+                                               const PropSetRaw_t &unset_props,
+                                               const PropSetRaw_t &set_props) const = 0;
 };
-
 
 /**
  * @brief Random branching heuristic, which chooses a
@@ -42,46 +43,53 @@ class RandomBranching : public BranchingHeuristic
 {
 public:
     RandomBranching();
-    AtomicProposition* NextProposition(const ClauseSetUnique_t &clauses, const PropSetRaw_t &unset_props, const PropSetRaw_t &set_props) const;
+    AtomicProposition *NextProposition(const ClauseSetUnique_t &clauses,
+                                       const PropSetRaw_t &unset_props,
+                                       const PropSetRaw_t &set_props) const;
 };
 
 class MaxMinClause : public BranchingHeuristic
 {
 public:
-    MaxMinClause(long long num_vars, PropMapUnique_t &prop_map_unique, const ClauseSetUnique_t &clauses);
-    AtomicProposition* NextProposition(const ClauseSetUnique_t &clauses, const PropSetRaw_t &unset_props, const PropSetRaw_t &set_props) const;
+    MaxMinClause(long long num_vars,
+                 PropMapUnique_t &prop_map_unique,
+                 const ClauseSetUnique_t &clauses);
+
+    AtomicProposition *NextProposition(const ClauseSetUnique_t &clauses,
+                                       const PropSetRaw_t &unset_props,
+                                       const PropSetRaw_t &set_props) const;
 
 private:
     std::unique_ptr<BranchingHeuristic> random_brancher;
 
-    virtual int Score(std::pair<int, int> prop_pair) const=0;
-    
+    virtual int Score(std::pair<int, int> prop_pair) const = 0;
+
     const long long num_vars;
     PropMapRaw_t raw_prop_map;
 };
 
-
 class BohmsBranching : public MaxMinClause
 {
 public:
-    BohmsBranching(long long num_vars, PropMapUnique_t &prop_map_unique, const ClauseSetUnique_t &clauses);
+    BohmsBranching(long long num_vars,
+                   PropMapUnique_t &prop_map_unique,
+                   const ClauseSetUnique_t &clauses);
 
 private:
-
     int Score(std::pair<int, int> prop_pair) const;
 
     const int alpha = 1;
     const int beta = 2;
 };
 
-
 class MomsBranching : public MaxMinClause
 {
 public:
-    MomsBranching(long long num_vars, PropMapUnique_t &prop_map_unique, const ClauseSetUnique_t &clauses);
+    MomsBranching(long long num_vars,
+                  PropMapUnique_t &prop_map_unique,
+                  const ClauseSetUnique_t &clauses);
 
 private:
-
     int Score(std::pair<int, int> prop_pair) const;
 
     const float k = 3.0;
