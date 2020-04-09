@@ -12,7 +12,7 @@ int main(int argc, char** argv)
     Solver solver(options.input_filename);
 
     start = std::chrono::high_resolution_clock::now();
-    Solver::Solution solution = solver.Solve(BranchingHeuristic::BranchingType::BOHM, BacktrackingHeuristic::BacktrackingType::STANDARD);
+    Solver::Solution solution = solver.Solve(options.branching_type, options.backtrack_type);
     stop = std::chrono::high_resolution_clock::now();
 
     if (!solution.SAT)
