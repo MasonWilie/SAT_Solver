@@ -37,8 +37,8 @@ private:
     AtomicProposition(std::shared_ptr<Variable> var_, long long name_, bool notted_);
     bool EvaluatesToTrue() const;
 
-    const long long name;
     const std::shared_ptr<Variable> var;
+    const long long name;
     const bool notted;
     AtomicProposition* inverse;
 };

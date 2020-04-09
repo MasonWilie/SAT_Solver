@@ -123,18 +123,12 @@ Solver::Solution Solver::Solve(const BranchingHeuristic::BranchingType branching
     bool prop_from_backtrack{false};
     AtomicProposition *next_prop = nullptr;
 
-    const double max_iterations = pow(2, (prop_map.size() / 2));
-
-    double iteration{0.0};
-
     do
     {
         if (!prop_from_backtrack)
         {
             next_prop = branching_heuristic->NextProposition(clauses, unset_props, set_props);
         }
-
-        iteration += 1.0;
 
         unset_props.erase(next_prop);
         set_props.insert(next_prop);
@@ -193,7 +187,7 @@ void Solver::ReadFile(std::string filename)
     bool p_found = false;
 
     size_t line_count{0};
-    size_t clause_count{0};
+    int clause_count{0};
     ClauseSetUnique_t::iterator clause_iterator;
     while (!in.eof())
     {
@@ -311,7 +305,7 @@ void Solver::ReadFile(std::string filename)
             clause_count++;
             if (clause_count > num_clauses)
             {
-                printf("Number of clauses encountered (%lu) does not match number of clauses expected (%d).\n", clause_count, num_clauses);
+                printf("Number of clauses encountered (%i) does not match number of clauses expected (%i).\n", clause_count, num_clauses);
                 ThrowFormatErrorWithUrl();
             }
         }

@@ -19,8 +19,8 @@ AtomicProposition *AtomicProposition::GetInverse() const
     return inverse;
 }
 
-AtomicProposition::AtomicProposition(std::shared_ptr<Variable> var_, long long name_) : name(name_),
-                                                                                        var(var_),
+AtomicProposition::AtomicProposition(std::shared_ptr<Variable> var_, long long name_) : var(var_),
+                                                                                        name(name_),
                                                                                         notted(false)
 {
 }

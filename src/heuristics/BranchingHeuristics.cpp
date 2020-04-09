@@ -329,7 +329,7 @@ AtomicProposition *JeroslowWang::NextProposition(const ClauseSetUnique_t &clause
         prop_scores[prop] = score;
     }
 
-    long long max_prop;
+    long long max_prop = 1;
     float max_score = -1.0;
 
     std::set<long long> ties;

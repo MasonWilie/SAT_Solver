@@ -61,11 +61,12 @@ public:
                                        const PropSetRaw_t &set_props) const;
 
 private:
-    std::unique_ptr<BranchingHeuristic> random_brancher;
+    
 
     virtual int Score(std::pair<int, int> prop_pair) const = 0;
 
     const long long num_vars;
+    std::unique_ptr<BranchingHeuristic> random_brancher;
     PropMapRaw_t raw_prop_map;
 };
 
