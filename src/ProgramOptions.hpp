@@ -33,6 +33,7 @@ ProgramOptions GetProgramOptions(int argc, char** argv)
         ("out,o", boost::program_options::value<std::string>(), "output filename")
         ("random-branch", "Use the random backtracking algorithm (default)")
         ("bohm-branch", "Use Bohm's branching algorithm")
+        ("mom-branch", "Use MOMs branching algorithm")
         ("standard-backtrack", "Use the standard backtracking algorithm (default)");
 
     boost::program_options::variables_map vm;
@@ -60,6 +61,10 @@ ProgramOptions GetProgramOptions(int argc, char** argv)
     {
         opts.branching_type = BranchingHeuristic::BranchingType::RANDOM;
         std::cout << "Random";
+    }else if (vm.count("mom-branch"))
+    {
+        opts.branching_type = BranchingHeuristic::BranchingType::MOMS;
+        std::cout << "MOM";
     }else
     {
         std::cout << "ERROR - None specified\n";

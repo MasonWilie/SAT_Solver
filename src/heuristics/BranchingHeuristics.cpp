@@ -68,7 +68,7 @@ AtomicProposition *RandomBranching::NextProposition(const ClauseSetUnique_t &cla
     return *iter;
 }
 
-BohmsBranching::BohmsBranching(long long num_vars, PropMapUnique_t &prop_map_unique, const ClauseSetUnique_t &clauses) : num_vars(num_vars),
+MaxMinClause::MaxMinClause(long long num_vars, PropMapUnique_t &prop_map_unique, const ClauseSetUnique_t &clauses) : num_vars(num_vars),
                                                                                     random_brancher(new RandomBranching)
 {
     for (auto iter = std::begin(prop_map_unique); iter != std::end(prop_map_unique); std::advance(iter, 1))
@@ -76,6 +76,8 @@ BohmsBranching::BohmsBranching(long long num_vars, PropMapUnique_t &prop_map_uni
         raw_prop_map.insert(std::pair<long long, AtomicProposition*>(iter->first, iter->second.get()));
     }
 }
+
+
 
 /**
  * @brief Branching algorithm that chooses a variable based on
@@ -89,11 +91,8 @@ BohmsBranching::BohmsBranching(long long num_vars, PropMapUnique_t &prop_map_uni
  * @param set_props Propositions that are currently set
  * @return AtomicProposition* Next proposition to set
  */
-AtomicProposition *BohmsBranching::NextProposition(const ClauseSetUnique_t &clauses, const PropSetRaw_t &unset_props, const PropSetRaw_t &set_props) const
+AtomicProposition *MaxMinClause::NextProposition(const ClauseSetUnique_t &clauses, const PropSetRaw_t &unset_props, const PropSetRaw_t &set_props) const
 {
-    
-    static int call_count = 0;
-
     size_t max_clause_size = 0;
     for (auto clause_iter = std::begin(clauses); clause_iter != std::end(clauses); std::advance(clause_iter, 1))
     {
@@ -178,7 +177,7 @@ AtomicProposition *BohmsBranching::NextProposition(const ClauseSetUnique_t &clau
         for (auto map_iter = std::begin(prop_map); map_iter != std::end(prop_map); std::advance(map_iter, 1))
         {
             
-            int score = alpha * max(map_iter->second.first, map_iter->second.second) + beta * min(map_iter->second.first, map_iter->second.second);
+            int score = Score(map_iter->second);
             if (score >= best_score)
             {
                 
@@ -218,4 +217,20 @@ AtomicProposition *BohmsBranching::NextProposition(const ClauseSetUnique_t &clau
     {
         return random_brancher->NextProposition(clauses, unset_props, set_props);
     }
+}
+
+BohmsBranching::BohmsBranching(long long num_vars, PropMapUnique_t &prop_map_unique, const ClauseSetUnique_t &clauses) : MaxMinClause(num_vars, prop_map_unique, clauses)
+{}
+
+int BohmsBranching::Score(std::pair<int, int> prop_pair) const
+{
+    return alpha * max(prop_pair.first, prop_pair.second) + beta * min(prop_pair.first, prop_pair.second);
+}
+
+MomsBranching::MomsBranching(long long num_vars, PropMapUnique_t &prop_map_unique, const ClauseSetUnique_t &clauses) : MaxMinClause(num_vars, prop_map_unique, clauses)
+{}
+
+int MomsBranching::Score(std::pair<int, int> prop_pair) const
+{
+    return (prop_pair.first + prop_pair.second) * (int)pow(2.0, k) + (prop_pair.first * prop_pair.second);
 }

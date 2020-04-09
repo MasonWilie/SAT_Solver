@@ -52,19 +52,16 @@ std::unique_ptr<BacktrackingHeuristic> Solver::CreateBacktrackingHeuristic(Backt
 std::unique_ptr<BranchingHeuristic> Solver::CreateBranchingHeuristic(BranchingHeuristic::BranchingType type)
 {
     std::unique_ptr<BranchingHeuristic> heuristic;
-    PropMapRaw_t raw_prop_map;
     switch (type)
     {
     case BranchingHeuristic::BranchingType::RANDOM:
         heuristic = std::unique_ptr<BranchingHeuristic>(new RandomBranching);
         break;
     case BranchingHeuristic::BranchingType::BOHM:
-        for (auto iter = std::begin(prop_map); iter != std::end(prop_map); std::advance(iter, 1))
-        {
-            raw_prop_map.insert(std::make_pair(iter->first, iter->second.get()));
-        }
-
         heuristic = std::unique_ptr<BranchingHeuristic>(new BohmsBranching(num_vars, prop_map, clauses));
+        break;
+    case BranchingHeuristic::BranchingType::MOMS:
+        heuristic = std::unique_ptr<BranchingHeuristic>(new MomsBranching(num_vars, prop_map, clauses));
         break;
     default:
         heuristic = nullptr;
