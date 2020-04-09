@@ -78,21 +78,9 @@ MaxMinClause::MaxMinClause(long long num_vars, PropMapUnique_t &prop_map_unique,
 }
 
 
-
-/**
- * @brief Branching algorithm that chooses a variable based on
- * maximizing the cost function proposed in the paper below.
- * 
- * "The Impact of Branching Heuristics in Propositional
- * Satisfiability Algorithms" by Joao Marques-Silva, Page 66
- * 
- * @param clauses All clauses (not used in this algorithm)
- * @param unset_props Propositions that are not currently set
- * @param set_props Propositions that are currently set
- * @return AtomicProposition* Next proposition to set
- */
 AtomicProposition *MaxMinClause::NextProposition(const ClauseSetUnique_t &clauses, const PropSetRaw_t &unset_props, const PropSetRaw_t &set_props) const
 {
+    // Get the current maximum clause size (could change when adding clauses)
     size_t max_clause_size = 0;
     for (auto clause_iter = std::begin(clauses); clause_iter != std::end(clauses); std::advance(clause_iter, 1))
     {
@@ -103,6 +91,7 @@ AtomicProposition *MaxMinClause::NextProposition(const ClauseSetUnique_t &clause
         }
     }
 
+    // Initially, you consider all props
     std::set<long long> props_to_consider;
     for (int i = 0; i < num_vars+1; i++)
     {
@@ -126,45 +115,41 @@ AtomicProposition *MaxMinClause::NextProposition(const ClauseSetUnique_t &clause
             }
 
             std::set<long long> props = (*clause_iter)->GetPropositionsLongLong();
-
+            
+            // Iterate through each proposition in the clause
             for (long long prop_num : props)
             {
-                if (props_to_consider.find(prop_num) == std::end(props_to_consider))
+                // If the proposition is not being considered or is not present in the clause, continue
+                if (props_to_consider.find(prop_num) == std::end(props_to_consider) || !raw_prop_map.at(prop_num)->PresentInClause())
                 {
                     continue;
                 }
 
-                if (!raw_prop_map.at(prop_num)->PresentInClause())
+                // Convert notted props to regular, but remember it was notted
+                bool neg = prop_num < 0;
+                if (neg)
                 {
-                    continue;
+                    prop_num = (-1) * prop_num;
                 }
 
-
-                if (prop_num < 0)
+                // Create an entry in the map for the prop if none exists
+                if (prop_map.find(prop_num) == std::end(prop_map))
                 {
-                    if (prop_map.find(-prop_num) == std::end(prop_map))
-                    {
-                        prop_map.insert(std::pair<long long, std::pair<int, int>>(-prop_num, std::pair<int, int>(0, 1)));
-                    }
-                    else
-                    {
-                        prop_map.at(-prop_num).second++;
-                    }
+                    prop_map.insert(std::pair<long long, std::pair<int, int>>(prop_num, std::pair<int, int>(0, 0)));
                 }
-                else
+
+                // Add add one to the corresponding prop (first = not notted, second = notted)
+                if (neg)
                 {
-                    if (prop_map.find(prop_num) == std::end(prop_map))
-                    {
-                        prop_map.insert(std::pair<long long, std::pair<int, int>>(prop_num, std::pair<int, int>(1, 0)));
-                    }
-                    else
-                    {
-                        prop_map.at(prop_num).first++;
-                    }
+                    prop_map.at(prop_num).second++;
+                }else
+                {
+                    prop_map.at(prop_num).first++;
                 }
             }
         }
 
+        // If there were no propositions that fit the requirements, move on
         if (prop_map.empty())
         {
             continue;
@@ -174,6 +159,7 @@ AtomicProposition *MaxMinClause::NextProposition(const ClauseSetUnique_t &clause
         int best_score = -1;
         bool tie = false;
 
+        // Try to find the maximum score for each proposition
         for (auto map_iter = std::begin(prop_map); map_iter != std::end(prop_map); std::advance(map_iter, 1))
         {
             
@@ -197,11 +183,13 @@ AtomicProposition *MaxMinClause::NextProposition(const ClauseSetUnique_t &clause
             }
         }
         
+        // If there was a maximum score, return the prop.
         if (!tie)
         {
             return raw_prop_map.at(best_score_prop);
         }
 
+        // If there was no max score, narrow the search space and try again
         props_to_consider.clear();
         for (long long p : ties)
         {
@@ -209,7 +197,7 @@ AtomicProposition *MaxMinClause::NextProposition(const ClauseSetUnique_t &clause
         }
     }
 
-
+    // If there were ties up until the last clause number, choose the first one. Otherwise choose random.
     if (!ties.empty())
     {
         return raw_prop_map.at(*std::begin(ties));
