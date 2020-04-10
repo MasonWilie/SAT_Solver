@@ -1,6 +1,5 @@
 #include "gtest/gtest.h"
 #include "BacktrackingHeuristics.h"
-#include "BranchingHeuristics.h"
 
 TEST(Backtracking, Standard)
 {

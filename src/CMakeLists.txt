@@ -9,18 +9,34 @@ add_library(core_lib STATIC ${CMAKE_CURRENT_SOURCE_DIR}/logic/AtomicProposition.
                             ${CMAKE_CURRENT_SOURCE_DIR}/logic/Variable.cpp
                             ${CMAKE_CURRENT_SOURCE_DIR}/logic/Clause.h
                             ${CMAKE_CURRENT_SOURCE_DIR}/logic/Clause.cpp
+
                             ${CMAKE_CURRENT_SOURCE_DIR}/solver/Solver.h
                             ${CMAKE_CURRENT_SOURCE_DIR}/solver/Solver.cpp
+
                             ${CMAKE_CURRENT_SOURCE_DIR}/ProgramOptions.hpp
-                            ${CMAKE_CURRENT_SOURCE_DIR}/heuristics/BacktrackingHeuristics.h
-                            ${CMAKE_CURRENT_SOURCE_DIR}/heuristics/BacktrackingHeuristics.cpp
-                            ${CMAKE_CURRENT_SOURCE_DIR}/heuristics/BranchingHeuristics.h
-                            ${CMAKE_CURRENT_SOURCE_DIR}/heuristics/BranchingHeuristics.cpp)
+
+                            ${CMAKE_CURRENT_SOURCE_DIR}/backtracking_heuristics/BacktrackingHeuristics.h
+                            ${CMAKE_CURRENT_SOURCE_DIR}/backtracking_heuristics/BacktrackingHeuristics.cpp
+
+                            ${CMAKE_CURRENT_SOURCE_DIR}/branching_heuristics/BranchingHeuristic.hpp
+                            ${CMAKE_CURRENT_SOURCE_DIR}/branching_heuristics/JeroslowWang.cpp
+                            ${CMAKE_CURRENT_SOURCE_DIR}/branching_heuristics/JeroslowWang.h
+                            ${CMAKE_CURRENT_SOURCE_DIR}/branching_heuristics/MOM.cpp
+                            ${CMAKE_CURRENT_SOURCE_DIR}/branching_heuristics/MOM.h
+                            ${CMAKE_CURRENT_SOURCE_DIR}/branching_heuristics/MaxMinClause.cpp
+                            ${CMAKE_CURRENT_SOURCE_DIR}/branching_heuristics/MaxMinClause.h
+                            ${CMAKE_CURRENT_SOURCE_DIR}/branching_heuristics/Random.cpp
+                            ${CMAKE_CURRENT_SOURCE_DIR}/branching_heuristics/Random.h
+                            ${CMAKE_CURRENT_SOURCE_DIR}/branching_heuristics/VSIDS.cpp
+                            ${CMAKE_CURRENT_SOURCE_DIR}/branching_heuristics/VSIDS.h
+                            ${CMAKE_CURRENT_SOURCE_DIR}/branching_heuristics/BOHM.cpp
+                            ${CMAKE_CURRENT_SOURCE_DIR}/branching_heuristics/BOHM.h)
 
 target_include_directories(core_lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(core_lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/solver)
 target_include_directories(core_lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/logic)
-target_include_directories(core_lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/heuristics)
+target_include_directories(core_lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/backtracking_heuristics)
+target_include_directories(core_lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/branching_heuristics)
 
 find_package(Boost REQUIRED COMPONENTS program_options)
 INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR} )

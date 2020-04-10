@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "BranchingHeuristics.h"
+#include "Random.h"
 #include <map>
 
 TEST(RandomHeuristic, Randomness)

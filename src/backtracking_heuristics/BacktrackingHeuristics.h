@@ -1,8 +1,13 @@
 #ifndef BACKTRACKING_HEURISTIC
 #define BACKTRACKING_HEURISTIC
 
-#include "Clause.h"
-#include "BranchingHeuristics.h"
+#include "BOHM.h"
+#include "JeroslowWang.h"
+#include "MOM.h"
+#include "Random.h"
+#include "VSIDS.h"
+
+
 #include <bits/stdc++.h> 
 
 /**
