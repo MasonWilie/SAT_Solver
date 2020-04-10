@@ -16,8 +16,7 @@ public:
     
     enum class BacktrackingType
     {
-        DPLL,
-        CDCL
+        DPLL
     };
 
     BacktrackingHeuristic()=default;
@@ -50,18 +49,6 @@ public:
     void Reset();
 private:
     std::stack<BacktrackingNode> history;
-};
-
-class CdclBacktracking : public BacktrackingHeuristic
-{
-public:
-    void Update(PropDecision decision);
-    AtomicProposition* Backtrack(ClauseSetUnique_t &clauses, PropSetRaw_t &unset_props, PropSetRaw_t &set_props);
-    void Reset();
-
-private:
-    Graph graph;
-    AtomicProposition* last_set;
 };
 
 #endif

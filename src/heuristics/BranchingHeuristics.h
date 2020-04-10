@@ -14,9 +14,9 @@
 
 struct PropDecision
 {
-    AtomicProposition* prop;
+    AtomicProposition *prop;
     bool was_unit_clause;
-    std::set<AtomicProposition*> clause_buddies;
+    std::set<AtomicProposition *> clause_buddies;
 };
 
 /**
@@ -33,14 +33,15 @@ public:
         BOHM,
         MOMS,
         JW1, // Two sided Jeroslow-Wang
-        JW2 // One sided Jeroslow-Wang
+        JW2,  // One sided Jeroslow-Wang
+        VSIDS
     };
 
     BranchingHeuristic() = default;
     ~BranchingHeuristic() = default;
     virtual PropDecision NextProposition(const ClauseSetUnique_t &clauses,
-                                               const PropSetRaw_t &unset_props,
-                                               const PropSetRaw_t &set_props) const = 0;
+                                         const PropSetRaw_t &unset_props,
+                                         const PropSetRaw_t &set_props) const = 0;
 };
 
 /**
@@ -53,8 +54,8 @@ class RandomBranching : public BranchingHeuristic
 public:
     RandomBranching(PropMapUnique_t &prop_map_unique);
     PropDecision NextProposition(const ClauseSetUnique_t &clauses,
-                                       const PropSetRaw_t &unset_props,
-                                       const PropSetRaw_t &set_props) const;
+                                 const PropSetRaw_t &unset_props,
+                                 const PropSetRaw_t &set_props) const;
 
 private:
     PropMapRaw_t raw_prop_map;
@@ -64,15 +65,13 @@ class MaxMinClauseHeuristic : public BranchingHeuristic
 {
 public:
     MaxMinClauseHeuristic(long long num_vars,
-                 PropMapUnique_t &prop_map_unique);
+                          PropMapUnique_t &prop_map_unique);
 
     PropDecision NextProposition(const ClauseSetUnique_t &clauses,
-                                       const PropSetRaw_t &unset_props,
-                                       const PropSetRaw_t &set_props) const;
+                                 const PropSetRaw_t &unset_props,
+                                 const PropSetRaw_t &set_props) const;
 
 private:
-    
-
     virtual int Score(std::pair<int, int> prop_pair) const = 0;
 
     const long long num_vars;
@@ -105,7 +104,6 @@ private:
     const float k = 3.0;
 };
 
-
 class JeroslowWang : public BranchingHeuristic
 {
 public:
@@ -118,8 +116,8 @@ public:
     JeroslowWang(Version version, long long num_vars, PropMapUnique_t &prop_map_unique);
 
     PropDecision NextProposition(const ClauseSetUnique_t &clauses,
-                                               const PropSetRaw_t &unset_props,
-                                               const PropSetRaw_t &set_props) const;
+                                 const PropSetRaw_t &unset_props,
+                                 const PropSetRaw_t &set_props) const;
 
 private:
     std::unique_ptr<BranchingHeuristic> random_brancher;
@@ -130,6 +128,23 @@ private:
     PropMapRaw_t raw_prop_map;
 
     float float_error = 1e-9;
+};
+
+class VsidsBranching : public BranchingHeuristic
+{
+public:
+    VsidsBranching(PropMapUnique_t &prop_map_unique,
+                   const ClauseSetUnique_t &clauses);
+
+    PropDecision NextProposition(const ClauseSetUnique_t &clauses,
+                                 const PropSetRaw_t &unset_props,
+                                 const PropSetRaw_t &set_props) const;
+
+private:
+    std::unique_ptr<BranchingHeuristic> random_brancher;
+
+    std::map<AtomicProposition *, int> count;
+    PropMapRaw_t raw_prop_map;
 };
 
 #endif

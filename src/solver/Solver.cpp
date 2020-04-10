@@ -42,7 +42,6 @@ inline void ThrowFormatErrorWithUrl()
     throw std::runtime_error("File format error. See http://www.satcompetition.org/2009/format-benchmarks2009.html");
 }
 
-// TODO: Turn this into a static function in the Backtracking Heuristic class
 std::unique_ptr<BacktrackingHeuristic> Solver::CreateBacktrackingHeuristic(BacktrackingHeuristic::BacktrackingType type)
 {
     std::unique_ptr<BacktrackingHeuristic> heuristic;
@@ -51,9 +50,6 @@ std::unique_ptr<BacktrackingHeuristic> Solver::CreateBacktrackingHeuristic(Backt
     case BacktrackingHeuristic::BacktrackingType::DPLL:
         heuristic = std::unique_ptr<BacktrackingHeuristic>(new DpllBacktracking);
         break;
-    case BacktrackingHeuristic::BacktrackingType::CDCL:
-        heuristic = std::unique_ptr<BacktrackingHeuristic>(new CdclBacktracking);
-        break;
     default:
         heuristic = nullptr;
     }
@@ -61,7 +57,6 @@ std::unique_ptr<BacktrackingHeuristic> Solver::CreateBacktrackingHeuristic(Backt
     return std::move(heuristic);
 }
 
-// TODO: Turn this into a static function in the the Branching Heuristic class
 std::unique_ptr<BranchingHeuristic> Solver::CreateBranchingHeuristic(BranchingHeuristic::BranchingType type)
 {
     std::unique_ptr<BranchingHeuristic> heuristic;
@@ -81,6 +76,9 @@ std::unique_ptr<BranchingHeuristic> Solver::CreateBranchingHeuristic(BranchingHe
         break;
     case BranchingHeuristic::BranchingType::JW2:
         heuristic = std::unique_ptr<BranchingHeuristic>(new JeroslowWang(JeroslowWang::Version::TWO_SIDED, num_vars, prop_map));
+        break;
+    case BranchingHeuristic::BranchingType::VSIDS:
+        heuristic = std::unique_ptr<BranchingHeuristic>(new VsidsBranching(prop_map, clauses));
         break;
     default:
         heuristic = nullptr;
@@ -179,7 +177,6 @@ std::set<std::set<long long>> Solver::GetClausesAsLongs() const
     return clauses_long_long;
 }
 
-//TODO: Refactor this to make it less of a mess. Break up into more functions.
 void Solver::ReadFile(std::string filename)
 {
     std::ifstream in(filename);

@@ -39,6 +39,7 @@ int min(int a, int b)
     }
 }
 
+
 size_t GetMaxClauseSize(const ClauseSetUnique_t &clauses)
 {
     size_t max_clause_size = 0;
@@ -75,8 +76,8 @@ RandomBranching::RandomBranching(PropMapUnique_t &prop_map_unique)
  * @return AtomicProposition* Next proposition to set
  */
 PropDecision RandomBranching::NextProposition(const ClauseSetUnique_t &clauses,
-                                                    const PropSetRaw_t &unset_props,
-                                                    const PropSetRaw_t &set_props) const
+                                              const PropSetRaw_t &unset_props,
+                                              const PropSetRaw_t &set_props) const
 {
     PropDecision decision;
 
@@ -88,7 +89,7 @@ PropDecision RandomBranching::NextProposition(const ClauseSetUnique_t &clauses,
 
             for (long long p : props)
             {
-                AtomicProposition* prop_ptr = raw_prop_map.at(p);
+                AtomicProposition *prop_ptr = raw_prop_map.at(p);
                 decision.clause_buddies.insert(prop_ptr);
                 if (prop_ptr->PresentInClause())
                 {
@@ -128,8 +129,8 @@ MaxMinClauseHeuristic::MaxMinClauseHeuristic(long long num_vars,
 }
 
 PropDecision MaxMinClauseHeuristic::NextProposition(const ClauseSetUnique_t &clauses,
-                                                          const PropSetRaw_t &unset_props,
-                                                          const PropSetRaw_t &set_props) const
+                                                    const PropSetRaw_t &unset_props,
+                                                    const PropSetRaw_t &set_props) const
 {
     PropDecision decision;
 
@@ -171,7 +172,6 @@ PropDecision MaxMinClauseHeuristic::NextProposition(const ClauseSetUnique_t &cla
                 {
                     continue;
                 }
-
 
                 // Convert notted props to regular, but remember it was notted
                 bool neg = prop_num < 0;
@@ -236,7 +236,7 @@ PropDecision MaxMinClauseHeuristic::NextProposition(const ClauseSetUnique_t &cla
         if (!tie)
         {
             decision.was_unit_clause = clause_size == 1;
-            decision.prop = raw_prop_map.at(best_score_prop);      
+            decision.prop = raw_prop_map.at(best_score_prop);
             return decision;
         }
 
@@ -255,7 +255,8 @@ PropDecision MaxMinClauseHeuristic::NextProposition(const ClauseSetUnique_t &cla
         {
             // decision.prop = raw_prop_map.at(*std::begin(unit_clauses_found));
             decision.was_unit_clause = true;
-        }else
+        }
+        else
         {
             decision.prop = raw_prop_map.at(*std::begin(ties));
             decision.was_unit_clause = false;
@@ -263,7 +264,7 @@ PropDecision MaxMinClauseHeuristic::NextProposition(const ClauseSetUnique_t &cla
     }
     else
     {
-        decision =  random_brancher->NextProposition(clauses, unset_props, set_props);
+        decision = random_brancher->NextProposition(clauses, unset_props, set_props);
     }
 
     return decision;
@@ -306,8 +307,8 @@ JeroslowWang::JeroslowWang(Version version, long long num_vars, PropMapUnique_t 
 }
 
 PropDecision JeroslowWang::NextProposition(const ClauseSetUnique_t &clauses,
-                                                 const PropSetRaw_t &unset_props,
-                                                 const PropSetRaw_t &set_props) const
+                                           const PropSetRaw_t &unset_props,
+                                           const PropSetRaw_t &set_props) const
 {
     PropDecision decision;
 
@@ -319,7 +320,7 @@ PropDecision JeroslowWang::NextProposition(const ClauseSetUnique_t &clauses,
 
             for (long long p : props)
             {
-                AtomicProposition* prop_ptr = raw_prop_map.at(p);
+                AtomicProposition *prop_ptr = raw_prop_map.at(p);
                 decision.clause_buddies.insert(prop_ptr);
                 if (prop_ptr->PresentInClause())
                 {
@@ -345,7 +346,6 @@ PropDecision JeroslowWang::NextProposition(const ClauseSetUnique_t &clauses,
         }
         prop_count.insert(std::pair<long long, std::vector<int>>(i, std::vector<int>(max_clause_size, 0)));
     }
-    
 
     // Iterate through each clause
     for (auto clause_iter = std::begin(clauses); clause_iter != std::end(clauses); std::advance(clause_iter, 1))
@@ -372,11 +372,9 @@ PropDecision JeroslowWang::NextProposition(const ClauseSetUnique_t &clauses,
                 continue;
             }
 
-            prop_count[prop][clause_size-1]++;
+            prop_count[prop][clause_size - 1]++;
         }
     }
-
-    
 
     std::map<long long, float> prop_scores;
 
@@ -390,7 +388,7 @@ PropDecision JeroslowWang::NextProposition(const ClauseSetUnique_t &clauses,
         float size = 1;
         float score = 0;
         for (int count : prop_count[prop])
-        {   
+        {
             if (count != 0)
             {
                 score += pow(2.0, -size);
@@ -412,16 +410,17 @@ PropDecision JeroslowWang::NextProposition(const ClauseSetUnique_t &clauses,
         float score = prop_scores[prop] + (version == Version::TWO_SIDED ? prop_scores[-prop] : 0);
         if (score >= max_score)
         {
-            if (abs(score-max_score) < float_error)
+            if (abs(score - max_score) < float_error)
             {
                 is_tie = true;
                 ties.insert(prop);
-            }else
+            }
+            else
             {
                 ties.clear();
                 is_tie = false;
                 ties.insert(prop);
-                
+
                 max_score = score;
                 max_prop = prop;
             }
@@ -442,9 +441,74 @@ PropDecision JeroslowWang::NextProposition(const ClauseSetUnique_t &clauses,
         float not_score = prop_scores[-max_prop];
 
         decision.prop = raw_prop_map.at((reg_score >= not_score ? max_prop : -max_prop));
-    }else
+    }
+    else
     {
         decision.prop = raw_prop_map.at(max_prop);
+    }
+
+    return decision;
+}
+
+VsidsBranching::VsidsBranching(PropMapUnique_t &prop_map_unique,
+                               const ClauseSetUnique_t &clauses)
+    : random_brancher(new RandomBranching(prop_map_unique))
+{
+    srand(time(NULL));
+
+    for (auto iter = std::begin(prop_map_unique); iter != std::end(prop_map_unique); std::advance(iter, 1))
+    {
+        count.insert(std::make_pair(iter->second.get(), 0));
+        raw_prop_map.insert(std::make_pair(iter->first, iter->second.get()));
+    }
+
+    for (auto iter = std::begin(clauses); iter != std::end(clauses); std::advance(iter, 1))
+    {
+        std::set<long long> props_long = (*iter)->GetPropositionsLongLong();
+        for (long long p : props_long)
+        {
+            count.at(raw_prop_map.at(p))++;
+        }
+    }
+}
+
+PropDecision VsidsBranching::NextProposition(const ClauseSetUnique_t &clauses,
+                                             const PropSetRaw_t &unset_props,
+                                             const PropSetRaw_t &set_props) const
+{
+    PropDecision decision;
+    decision.prop = nullptr;
+
+    std::set<AtomicProposition*> ties;
+
+    int max_count = -1;
+    for (auto prop_and_count : count)
+    {
+        if (!prop_and_count.first->PresentInClause())
+        {
+            continue;
+        }
+        if (prop_and_count.second > max_count)
+        {
+            max_count = prop_and_count.second;
+            decision.prop = prop_and_count.first;
+            
+            ties.clear();
+            ties.insert(prop_and_count.first);
+        }else if (prop_and_count.second == max_count)
+        {
+            ties.insert(prop_and_count.first);
+        }
+    }
+
+    if (ties.size() == 1)
+    {
+        return decision;
+    }else
+    {
+        auto iter = std::begin(ties);
+        std::advance(iter, rand() % ties.size());
+        decision.prop = *iter;
     }
 
     return decision;
