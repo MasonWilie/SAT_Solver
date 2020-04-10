@@ -29,7 +29,7 @@ AtomicProposition *VsidsBranching::NextProposition(const ClauseSetUnique_t &clau
 {
     std::set<AtomicProposition *> ties;
 
-    AtomicProposition* winner;
+    AtomicProposition* winner = nullptr;
     int max_count = -1;
     for (auto prop_and_count : count)
     {
