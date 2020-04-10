@@ -31,13 +31,12 @@ ProgramOptions GetProgramOptions(int argc, char** argv)
         ("help,h", "print usage message")
         ("in,i", boost::program_options::value<std::string>(), "input filename (required)")
         ("out,o", boost::program_options::value<std::string>(), "output filename")
-        ("random-branch", "Use the random backtracking algorithm (default)")
-        ("bohm-branch", "Use Bohm's branching algorithm")
-        ("mom-branch", "Use MOMs branching algorithm")
-        ("jw-one-branch", "Use the one sided Jeroslow-Wang branching algorithm")
-        ("jw-two-branch", "Use the two sided Jeroslow-Wang branching algorithm")
-        ("vsids-branch", "Use the VSIDS branching algorithm")
-        ("dpll-backtrack", "Use the DPLL backtracking algorithm (default)");
+        ("random", "Use the random backtracking algorithm")
+        ("bohm", "Use Bohm's branching algorithm")
+        ("mom", "Use MOMs branching algorithm")
+        ("jw-one", "Use the one sided Jeroslow-Wang branching algorithm")
+        ("jw-two", "Use the two sided Jeroslow-Wang branching algorithm")
+        ("vsids", "Use the VSIDS branching algorithm");
 
 
     boost::program_options::variables_map vm;
@@ -57,27 +56,27 @@ ProgramOptions GetProgramOptions(int argc, char** argv)
     opts.input_filename = vm["in"].as<std::string>();
 
     std::cout << "Branching type: ";
-    if (vm.count("bohm-branch"))
+    if (vm.count("bohm"))
     {
         opts.branching_type = BranchingHeuristic::BranchingType::BOHM;
         std::cout << "Bohm's";
-    }else if (vm.count("random-branch"))
+    }else if (vm.count("random"))
     {
         opts.branching_type = BranchingHeuristic::BranchingType::RANDOM;
         std::cout << "Random";
-    }else if (vm.count("mom-branch"))
+    }else if (vm.count("mom"))
     {
         opts.branching_type = BranchingHeuristic::BranchingType::MOMS;
         std::cout << "MOM";
-    }else if (vm.count("jw-one-branch"))
+    }else if (vm.count("jw-one"))
     {
         opts.branching_type = BranchingHeuristic::BranchingType::JW1;
         std::cout << "One sided Jeroslow-Wang";
-    }else if (vm.count("jw-two-branch"))
+    }else if (vm.count("jw-two"))
     {
         opts.branching_type = BranchingHeuristic::BranchingType::JW1;
         std::cout << "Two sided Jeroslow-Wang";
-    }else if (vm.count("vsids-branch"))
+    }else if (vm.count("vsids"))
     {
         opts.branching_type = BranchingHeuristic::BranchingType::VSIDS;
         std::cout << "VSIDS";
@@ -89,19 +88,8 @@ ProgramOptions GetProgramOptions(int argc, char** argv)
     }
     std::cout << std::endl;
 
-    std::cout << "Backtrack type: ";
-    if (vm.count("dpll-backtrack"))
-    {
-        opts.backtrack_type = BacktrackingHeuristic::BacktrackingType::DPLL;
-        std::cout << "DPLL";
-    }else
-    {
-        std::cout << "ERROR - None specified\n";
-        std::cout << desc << "\n";
-        exit(0);
-    }
-    std::cout << std::endl;
-
+    opts.backtrack_type = BacktrackingHeuristic::BacktrackingType::DPLL;
+    
     return opts;
 }
 
