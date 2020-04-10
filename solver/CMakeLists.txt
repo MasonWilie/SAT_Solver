@@ -43,7 +43,7 @@ INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR} )
 
 
 # The main program
-add_executable(SAT main.cpp)
-target_link_libraries(SAT PRIVATE core_lib ${Boost_LIBRARIES})
+add_executable(Solve main.cpp)
+target_link_libraries(Solve PRIVATE core_lib ${Boost_LIBRARIES})
 
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/build/)
