@@ -2,7 +2,6 @@
 #define BACKTRACKING_HEURISTIC
 
 #include "Clause.h"
-#include "Graph.h"
 #include "BranchingHeuristics.h"
 #include <bits/stdc++.h> 
 
