@@ -39,7 +39,6 @@ int min(int a, int b)
     }
 }
 
-
 size_t GetMaxClauseSize(const ClauseSetUnique_t &clauses)
 {
     size_t max_clause_size = 0;
@@ -75,12 +74,10 @@ RandomBranching::RandomBranching(PropMapUnique_t &prop_map_unique)
  * @param set_props Propositions that are currently set
  * @return AtomicProposition* Next proposition to set
  */
-PropDecision RandomBranching::NextProposition(const ClauseSetUnique_t &clauses,
-                                              const PropSetRaw_t &unset_props,
-                                              const PropSetRaw_t &set_props) const
+AtomicProposition *RandomBranching::NextProposition(const ClauseSetUnique_t &clauses,
+                                                    const PropSetRaw_t &unset_props,
+                                                    const PropSetRaw_t &set_props) const
 {
-    PropDecision decision;
-
     for (auto iter = std::begin(clauses); iter != std::end(clauses); std::advance(iter, 1))
     {
         if ((*iter)->Size() == 1)
@@ -90,19 +87,14 @@ PropDecision RandomBranching::NextProposition(const ClauseSetUnique_t &clauses,
             for (long long p : props)
             {
                 AtomicProposition *prop_ptr = raw_prop_map.at(p);
-                decision.clause_buddies.insert(prop_ptr);
                 if (prop_ptr->PresentInClause())
                 {
-                    decision.prop = prop_ptr;
-                    decision.was_unit_clause = true;
+                    return prop_ptr;
                 }
             }
-            return decision;
         }
     }
 
-    // TODO: Build unit propagation into this
-    // TODO: Make this more efficient
     PropSetRaw_t::iterator iter;
     do
     {
@@ -110,10 +102,7 @@ PropDecision RandomBranching::NextProposition(const ClauseSetUnique_t &clauses,
         std::advance(iter, rand() % unset_props.size());
     } while (std::find(std::begin(set_props), std::end(set_props), (*iter)->GetInverse()) != std::end(set_props));
 
-    decision.prop = *iter;
-    decision.was_unit_clause = false;
-
-    return decision;
+    return *iter;
 }
 
 MaxMinClauseHeuristic::MaxMinClauseHeuristic(long long num_vars,
@@ -128,12 +117,10 @@ MaxMinClauseHeuristic::MaxMinClauseHeuristic(long long num_vars,
     }
 }
 
-PropDecision MaxMinClauseHeuristic::NextProposition(const ClauseSetUnique_t &clauses,
-                                                    const PropSetRaw_t &unset_props,
-                                                    const PropSetRaw_t &set_props) const
+AtomicProposition *MaxMinClauseHeuristic::NextProposition(const ClauseSetUnique_t &clauses,
+                                                          const PropSetRaw_t &unset_props,
+                                                          const PropSetRaw_t &set_props) const
 {
-    PropDecision decision;
-
     // Get the current maximum clause size (could change when adding clauses)
     size_t max_clause_size = GetMaxClauseSize(clauses);
 
@@ -235,9 +222,7 @@ PropDecision MaxMinClauseHeuristic::NextProposition(const ClauseSetUnique_t &cla
         // If there was a maximum score, return the prop.
         if (!tie)
         {
-            decision.was_unit_clause = clause_size == 1;
-            decision.prop = raw_prop_map.at(best_score_prop);
-            return decision;
+            return raw_prop_map.at(best_score_prop);
         }
 
         // If there was no max score, narrow the search space and try again
@@ -251,23 +236,10 @@ PropDecision MaxMinClauseHeuristic::NextProposition(const ClauseSetUnique_t &cla
     // If there were ties up until the last clause number, choose the first one. Otherwise choose random.
     if (!ties.empty())
     {
-        if (!unit_clauses_found.empty())
-        {
-            // decision.prop = raw_prop_map.at(*std::begin(unit_clauses_found));
-            decision.was_unit_clause = true;
-        }
-        else
-        {
-            decision.prop = raw_prop_map.at(*std::begin(ties));
-            decision.was_unit_clause = false;
-        }
-    }
-    else
-    {
-        decision = random_brancher->NextProposition(clauses, unset_props, set_props);
+        return raw_prop_map.at(*std::begin(ties));
     }
 
-    return decision;
+    return random_brancher->NextProposition(clauses, unset_props, set_props);
 }
 
 BohmsBranching::BohmsBranching(long long num_vars,
@@ -306,12 +278,10 @@ JeroslowWang::JeroslowWang(Version version, long long num_vars, PropMapUnique_t 
     }
 }
 
-PropDecision JeroslowWang::NextProposition(const ClauseSetUnique_t &clauses,
-                                           const PropSetRaw_t &unset_props,
-                                           const PropSetRaw_t &set_props) const
+AtomicProposition *JeroslowWang::NextProposition(const ClauseSetUnique_t &clauses,
+                                                 const PropSetRaw_t &unset_props,
+                                                 const PropSetRaw_t &set_props) const
 {
-    PropDecision decision;
-
     for (auto iter = std::begin(clauses); iter != std::end(clauses); std::advance(iter, 1))
     {
         if ((*iter)->Size() == 1)
@@ -321,18 +291,13 @@ PropDecision JeroslowWang::NextProposition(const ClauseSetUnique_t &clauses,
             for (long long p : props)
             {
                 AtomicProposition *prop_ptr = raw_prop_map.at(p);
-                decision.clause_buddies.insert(prop_ptr);
                 if (prop_ptr->PresentInClause())
                 {
-                    decision.prop = prop_ptr;
-                    decision.was_unit_clause = true;
+                    return prop_ptr;
                 }
             }
-            return decision;
         }
     }
-
-    decision.was_unit_clause = false;
 
     size_t max_clause_size = GetMaxClauseSize(clauses);
     std::map<long long, std::vector<int>> prop_count;
@@ -440,14 +405,10 @@ PropDecision JeroslowWang::NextProposition(const ClauseSetUnique_t &clauses,
         float reg_score = prop_scores[max_prop];
         float not_score = prop_scores[-max_prop];
 
-        decision.prop = raw_prop_map.at((reg_score >= not_score ? max_prop : -max_prop));
+        return raw_prop_map.at((reg_score >= not_score ? max_prop : -max_prop));
     }
-    else
-    {
-        decision.prop = raw_prop_map.at(max_prop);
-    }
+    return raw_prop_map.at(max_prop);
 
-    return decision;
 }
 
 VsidsBranching::VsidsBranching(PropMapUnique_t &prop_map_unique,
@@ -472,15 +433,13 @@ VsidsBranching::VsidsBranching(PropMapUnique_t &prop_map_unique,
     }
 }
 
-PropDecision VsidsBranching::NextProposition(const ClauseSetUnique_t &clauses,
-                                             const PropSetRaw_t &unset_props,
-                                             const PropSetRaw_t &set_props) const
+AtomicProposition *VsidsBranching::NextProposition(const ClauseSetUnique_t &clauses,
+                                                   const PropSetRaw_t &unset_props,
+                                                   const PropSetRaw_t &set_props) const
 {
-    PropDecision decision;
-    decision.prop = nullptr;
+    std::set<AtomicProposition *> ties;
 
-    std::set<AtomicProposition*> ties;
-
+    AtomicProposition* winner;
     int max_count = -1;
     for (auto prop_and_count : count)
     {
@@ -491,11 +450,12 @@ PropDecision VsidsBranching::NextProposition(const ClauseSetUnique_t &clauses,
         if (prop_and_count.second > max_count)
         {
             max_count = prop_and_count.second;
-            decision.prop = prop_and_count.first;
-            
+            winner = prop_and_count.first;
+
             ties.clear();
             ties.insert(prop_and_count.first);
-        }else if (prop_and_count.second == max_count)
+        }
+        else if (prop_and_count.second == max_count)
         {
             ties.insert(prop_and_count.first);
         }
@@ -503,13 +463,10 @@ PropDecision VsidsBranching::NextProposition(const ClauseSetUnique_t &clauses,
 
     if (ties.size() == 1)
     {
-        return decision;
-    }else
-    {
-        auto iter = std::begin(ties);
-        std::advance(iter, rand() % ties.size());
-        decision.prop = *iter;
+        return winner;
     }
 
-    return decision;
+    auto iter = std::begin(ties);
+    std::advance(iter, rand() % ties.size());
+    return *iter;
 }

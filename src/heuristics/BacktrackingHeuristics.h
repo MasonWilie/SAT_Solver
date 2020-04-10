@@ -22,7 +22,7 @@ public:
     BacktrackingHeuristic()=default;
     ~BacktrackingHeuristic()=default;
 
-    virtual void Update(PropDecision decision)=0;
+    virtual void Update(AtomicProposition* decision)=0;
     virtual AtomicProposition* Backtrack(ClauseSetUnique_t &clauses, PropSetRaw_t &unset_props, PropSetRaw_t &set_props)=0;
     virtual void Reset()=0;
 };
@@ -44,7 +44,7 @@ public:
         AtomicProposition* last_set{nullptr};
     };
 
-    void Update(PropDecision decision);
+    void Update(AtomicProposition* decision);
     AtomicProposition* Backtrack(ClauseSetUnique_t &clauses, PropSetRaw_t &unset_props, PropSetRaw_t &set_props);
     void Reset();
 private:

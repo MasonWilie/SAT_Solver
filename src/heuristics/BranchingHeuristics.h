@@ -12,13 +12,6 @@
 
 #include "Clause.h"
 
-struct PropDecision
-{
-    AtomicProposition *prop;
-    bool was_unit_clause;
-    std::set<AtomicProposition *> clause_buddies;
-};
-
 /**
  * @brief Virtual class that represents a branching heuristic,
  * which chooses the next variable to assert.
@@ -33,15 +26,15 @@ public:
         BOHM,
         MOMS,
         JW1, // Two sided Jeroslow-Wang
-        JW2,  // One sided Jeroslow-Wang
+        JW2, // One sided Jeroslow-Wang
         VSIDS
     };
 
     BranchingHeuristic() = default;
     ~BranchingHeuristic() = default;
-    virtual PropDecision NextProposition(const ClauseSetUnique_t &clauses,
-                                         const PropSetRaw_t &unset_props,
-                                         const PropSetRaw_t &set_props) const = 0;
+    virtual AtomicProposition *NextProposition(const ClauseSetUnique_t &clauses,
+                                               const PropSetRaw_t &unset_props,
+                                               const PropSetRaw_t &set_props) const = 0;
 };
 
 /**
@@ -53,9 +46,9 @@ class RandomBranching : public BranchingHeuristic
 {
 public:
     RandomBranching(PropMapUnique_t &prop_map_unique);
-    PropDecision NextProposition(const ClauseSetUnique_t &clauses,
-                                 const PropSetRaw_t &unset_props,
-                                 const PropSetRaw_t &set_props) const;
+    AtomicProposition *NextProposition(const ClauseSetUnique_t &clauses,
+                                       const PropSetRaw_t &unset_props,
+                                       const PropSetRaw_t &set_props) const;
 
 private:
     PropMapRaw_t raw_prop_map;
@@ -67,9 +60,9 @@ public:
     MaxMinClauseHeuristic(long long num_vars,
                           PropMapUnique_t &prop_map_unique);
 
-    PropDecision NextProposition(const ClauseSetUnique_t &clauses,
-                                 const PropSetRaw_t &unset_props,
-                                 const PropSetRaw_t &set_props) const;
+    AtomicProposition *NextProposition(const ClauseSetUnique_t &clauses,
+                                       const PropSetRaw_t &unset_props,
+                                       const PropSetRaw_t &set_props) const;
 
 private:
     virtual int Score(std::pair<int, int> prop_pair) const = 0;
@@ -115,9 +108,9 @@ public:
 
     JeroslowWang(Version version, long long num_vars, PropMapUnique_t &prop_map_unique);
 
-    PropDecision NextProposition(const ClauseSetUnique_t &clauses,
-                                 const PropSetRaw_t &unset_props,
-                                 const PropSetRaw_t &set_props) const;
+    AtomicProposition *NextProposition(const ClauseSetUnique_t &clauses,
+                                       const PropSetRaw_t &unset_props,
+                                       const PropSetRaw_t &set_props) const;
 
 private:
     std::unique_ptr<BranchingHeuristic> random_brancher;
@@ -136,9 +129,9 @@ public:
     VsidsBranching(PropMapUnique_t &prop_map_unique,
                    const ClauseSetUnique_t &clauses);
 
-    PropDecision NextProposition(const ClauseSetUnique_t &clauses,
-                                 const PropSetRaw_t &unset_props,
-                                 const PropSetRaw_t &set_props) const;
+    AtomicProposition *NextProposition(const ClauseSetUnique_t &clauses,
+                                       const PropSetRaw_t &unset_props,
+                                       const PropSetRaw_t &set_props) const;
 
 private:
     std::unique_ptr<BranchingHeuristic> random_brancher;

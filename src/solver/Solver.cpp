@@ -124,9 +124,9 @@ Solver::Solution Solver::Solve(const BranchingHeuristic::BranchingType branching
     std::unique_ptr<BacktrackingHeuristic> backtracking_heuristic(CreateBacktrackingHeuristic(backtracking_type));
 
     bool prop_from_backtrack{false};
-    PropDecision next_prop;
+    AtomicProposition* next_prop;
 
-    next_prop.prop = nullptr;
+    next_prop = nullptr;
 
     do
     {
@@ -135,9 +135,9 @@ Solver::Solution Solver::Solve(const BranchingHeuristic::BranchingType branching
             next_prop = branching_heuristic->NextProposition(clauses, unset_props, set_props);
         }
 
-        unset_props.erase(next_prop.prop);
-        set_props.insert(next_prop.prop);
-        next_prop.prop->Assert();
+        unset_props.erase(next_prop);
+        set_props.insert(next_prop);
+        next_prop->Assert();
         backtracking_heuristic->Update(next_prop);
 
         switch (Status())
@@ -154,14 +154,14 @@ Solver::Solution Solver::Solve(const BranchingHeuristic::BranchingType branching
             return solution;
             break;
         case Solver::FormulaStatus::UNSTAT:
-            next_prop.prop = backtracking_heuristic->Backtrack(clauses, unset_props, set_props);
+            next_prop = backtracking_heuristic->Backtrack(clauses, unset_props, set_props);
             prop_from_backtrack = true;
             break;
         default:
             break;
         }
 
-    } while (next_prop.prop);
+    } while (next_prop);
 
     solution.SAT = false;
     return solution;

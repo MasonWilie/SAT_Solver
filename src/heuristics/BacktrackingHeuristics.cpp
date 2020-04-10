@@ -9,30 +9,30 @@
  * 
  * @param decision Proposition that was previously chosen
  */
-void DpllBacktracking::Update(PropDecision decision)
+void DpllBacktracking::Update(AtomicProposition* decision)
 {
-    if (history.size() != 0 && history.top().regular == decision.prop->GetInverse())
+    if (history.size() != 0 && history.top().regular == decision->GetInverse())
     {
-        history.top().notted = decision.prop;
-    }else if (history.size() != 0 &&  history.top().notted == decision.prop->GetInverse())
+        history.top().notted = decision;
+    }else if (history.size() != 0 &&  history.top().notted == decision->GetInverse())
     {
-        history.top().regular = decision.prop;
+        history.top().regular = decision;
     }else
     {
         BacktrackingNode node;
-        if (decision.prop->IsNot())
+        if (decision->IsNot())
         {
-            node.notted = decision.prop;
+            node.notted = decision;
             node.regular = nullptr;
         }else
         {
-            node.regular = decision.prop;
+            node.regular = decision;
             node.notted = nullptr;
         }
         history.push(node);
     }
 
-    history.top().last_set = decision.prop;
+    history.top().last_set = decision;
 }
 
 /**

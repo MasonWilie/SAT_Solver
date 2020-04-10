@@ -27,7 +27,7 @@ TEST(RandomHeuristic, Randomness)
 
     for (int i = 0; i < 10000; i++)
     {
-        chosen_props.insert(rb.NextProposition(clauses, props, set_props).prop);
+        chosen_props.insert(rb.NextProposition(clauses, props, set_props));
     }
 
     EXPECT_EQ(chosen_props.size(), props.size());
