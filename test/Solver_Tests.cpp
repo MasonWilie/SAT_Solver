@@ -34,7 +34,7 @@ TEST(Solver, ReadFile)
     std::set<int> c2 = {-3, 1, 2};
     std::set<int> c3 = {4, -3, 2};
 
-    std::set<std::set<int>> clauses_long_long = solver.GetClausesAsLongs();
+    std::set<std::set<int>> clauses_long_long = solver.GetClausesAsInts();
 
     EXPECT_TRUE(std::find(std::begin(clauses_long_long), std::end(clauses_long_long), c1) != std::end(clauses_long_long));
     EXPECT_TRUE(std::find(std::begin(clauses_long_long), std::end(clauses_long_long), c2) != std::end(clauses_long_long));

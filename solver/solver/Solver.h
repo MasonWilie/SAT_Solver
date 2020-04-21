@@ -65,7 +65,7 @@ public:
     Solution Solve(const BranchingHeuristic::BranchingType branching_type,
                    const BacktrackingHeuristic::BacktrackingType backtracking_type);
 
-    std::set<std::set<int>> GetClausesAsLongs() const;
+    std::set<std::set<int>> GetClausesAsInts() const;
 
 private:
     bool Step();

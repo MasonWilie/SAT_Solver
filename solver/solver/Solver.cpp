@@ -166,7 +166,7 @@ Solver::Solution Solver::Solve(const BranchingHeuristic::BranchingType branching
     return solution;
 }
 
-std::set<std::set<int>> Solver::GetClausesAsLongs() const
+std::set<std::set<int>> Solver::GetClausesAsInts() const
 {
     std::set<std::set<int>> clauses_long_long;
     for (ClauseSetUnique_t::iterator iter = std::begin(clauses); iter != std::end(clauses); std::advance(iter, 1))
