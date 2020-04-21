@@ -47,7 +47,7 @@ AtomicProposition *RandomBranching::NextProposition(const ClauseSetUnique_t &cla
     {
         iter = std::begin(unset_props);
         std::advance(iter, rand() % unset_props.size());
-    } while (std::find(std::begin(set_props), std::end(set_props), (*iter)->GetInverse()) != std::end(set_props));
+    } while ((*iter)->GetInverse()->IsAsserted());
 
     return *iter;
 }
