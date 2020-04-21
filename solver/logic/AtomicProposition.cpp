@@ -19,15 +19,17 @@ AtomicProposition *AtomicProposition::GetInverse() const
     return inverse;
 }
 
-AtomicProposition::AtomicProposition(std::shared_ptr<Variable> var_, long long name_) : var(var_),
-                                                                                        name(name_),
-                                                                                        notted(false)
+AtomicProposition::AtomicProposition(std::shared_ptr<Variable> var_, long long name_)
+    : var(var_),
+      name(name_),
+      notted(false)
 {
 }
 
-AtomicProposition::AtomicProposition(std::shared_ptr<Variable> var_, long long name_, bool notted_) : var(var_),
-                                                                                                      name(name_),
-                                                                                                      notted(notted_)
+AtomicProposition::AtomicProposition(std::shared_ptr<Variable> var_, long long name_, bool notted_)
+    : var(var_),
+      name(name_),
+      notted(notted_)
 {
 }
 
@@ -36,18 +38,20 @@ bool AtomicProposition::IsNot() const
     return notted;
 }
 
-bool AtomicProposition::VarIsSet() const
+bool AtomicProposition::IsAsserted() const
 {
-    return var->IsSet();
+    return asserted;
 }
 
 void AtomicProposition::Assert()
 {
+    asserted = true;
     var->Set(!notted);
 }
 
 void AtomicProposition::UnAssert()
 {
+    asserted = false;
     var->UnSet();
 }
 
