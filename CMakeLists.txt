@@ -6,3 +6,5 @@ project(SAT_Solver)
 add_subdirectory(solver)
 add_subdirectory(verifier)
 add_subdirectory(test)
+
+file(COPY ${CMAKE_SOURCE_DIR}/data/ DESTINATION ${CMAKE_SOURCE_DIR}/build/data/)
