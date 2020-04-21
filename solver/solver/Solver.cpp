@@ -123,7 +123,7 @@ Solver::Solution Solver::Solve(const BranchingHeuristic::BranchingType branching
     std::unique_ptr<BacktrackingHeuristic> backtracking_heuristic(CreateBacktrackingHeuristic(backtracking_type));
 
     bool prop_from_backtrack{false};
-    AtomicProposition* next_prop;
+    AtomicProposition *next_prop;
 
     next_prop = nullptr;
 
@@ -186,8 +186,10 @@ void Solver::ReadFile(std::string filename)
         throw std::runtime_error("Error opening file");
     }
 
-    int num_clauses;
+    int num_clauses = 0;
     bool p_found = false;
+
+    std::vector<std::string> element_strings;
 
     size_t line_count{0};
     int clause_count{0};
@@ -258,59 +260,61 @@ void Solver::ReadFile(std::string filename)
         {
             if (!p_found)
             {
-                // printf("Encountered non-comment or metadata line prior to reading needed metadata information at line %lu\n", line_count);
+                printf("Encountered non-comment or metadata line prior to reading needed metadata information at line %lu\n", line_count);
                 ThrowFormatErrorWithUrl();
             }
 
             std::vector<std::string> line_elements = SpaceDelimit(line);
 
-            if (line_elements[line_elements.size() - 1] != "0")
+            for (std::string s : line_elements)
             {
-                // printf("Error in line %lu. All clause lines should end in a '0'.\n", line_count);
-                ThrowFormatErrorWithUrl();
+                element_strings.push_back(s);
+            }
+        }
+    }
+
+
+    // Parsing the strings found to seperate the clauses
+    for (std::string s : element_strings)
+    {
+        // Convert the string to an integer
+        long long prop_num;
+        try
+        {
+            prop_num = std::stoi(s);
+        }
+        catch(const std::exception& e)
+        {
+            std::cerr << e.what() << '\n';
+            std::cout << "Error converting '" << s << "' into an integer." << std::endl;
+            exit(1);
+        }
+
+        // Division between clauses found
+        if (prop_num == 0)
+        {
+            if (clause_count == num_clauses)
+            {
+                std::cout << "More clauses encountered than expected" << std::endl;
+                exit(1);
             }
 
-            for (size_t i = 0; i < line_elements.size() - 1; i++)
+            if ((*clause_iterator)->Size() == 0)
             {
-                long long prop_num;
-                try
-                {
-                    prop_num = (long long)std::stoi(line_elements[i]);
-                }
-                catch (const std::exception &e)
-                {
-                    // printf("Error reading variable in line %lu. Encountered string '%s', which needs to be an int between -%ll and %ll (excluding 0).", line_count, line_elements[i].c_str(), num_vars, num_vars);
-                    ThrowFormatErrorWithUrl();
-                }
-
-                if (prop_num == 0 || prop_num > num_vars || prop_num < -num_vars)
-                {
-                    // printf("Invalid variable at line %lu. Needs to be between -%ll and %ll excluding 0", line_count, num_vars, num_vars);
-                    ThrowFormatErrorWithUrl();
-                }
-
-                if (prop_map.find(prop_num) == std::end(prop_map))
-                {
-                    // printf("Proposition given by the string '%s' not found.\n", line_elements[i].c_str());
-                    ThrowFormatErrorWithUrl();
-                }
-
-                if ((*clause_iterator)->ContainsProposition(prop_map[-prop_num].get()))
-                {
-                    // printf("Cannot have oposite propositions in the same line. Clause at line %lu is a tautology.\n", line_count);
-                    ThrowFormatErrorWithUrl();
-                }
-
-                (*clause_iterator)->AddProposition(prop_map[prop_num].get());
+                std::cout << "Trying to add an empty clause to the set of clauses" << std::endl;
             }
 
             std::advance(clause_iterator, 1);
             clause_count++;
-            if (clause_count > num_clauses)
+        }else
+        {
+            if (prop_num > num_vars || prop_num < -num_vars)
             {
-                printf("Number of clauses encountered (%i) does not match number of clauses expected (%i).\n", clause_count, num_clauses);
-                ThrowFormatErrorWithUrl();
+                std::cout << "Variable " << prop_num << " is out of range" << std::endl;
+                exit(1);
             }
+
+            (*clause_iterator)->AddProposition(prop_map[prop_num].get());
         }
     }
 
