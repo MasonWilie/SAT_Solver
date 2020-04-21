@@ -44,17 +44,16 @@ inline void ThrowFormatErrorWithUrl()
 
 std::unique_ptr<BacktrackingHeuristic> Solver::CreateBacktrackingHeuristic(BacktrackingHeuristic::BacktrackingType type)
 {
-    std::unique_ptr<BacktrackingHeuristic> heuristic;
     switch (type)
     {
     case BacktrackingHeuristic::BacktrackingType::DPLL:
-        heuristic = std::unique_ptr<BacktrackingHeuristic>(new DpllBacktracking);
+        return std::make_unique<DpllBacktracking>();
         break;
     default:
-        heuristic = nullptr;
+        return nullptr;
     }
 
-    return std::move(heuristic);
+    return nullptr;
 }
 
 std::unique_ptr<BranchingHeuristic> Solver::CreateBranchingHeuristic(BranchingHeuristic::BranchingType type)

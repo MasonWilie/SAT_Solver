@@ -56,6 +56,7 @@ public:
     };
 
     Solver(std::string filename);
+    ~Solver()=default;
 
     Solution Solve();
     static std::vector<std::string> SpaceDelimit(std::string s);
