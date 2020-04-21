@@ -3,10 +3,10 @@
 
 TEST(Variable_tests, Constructor)
 {
-    const long long name_1{1};
-    const long long name_2{2};
-    const long long name_3{3};
-    const long long name_4{4};
+    const int name_1{1};
+    const int name_2{2};
+    const int name_3{3};
+    const int name_4{4};
 
     Variable a(name_1);
     Variable b(name_2);
@@ -28,8 +28,8 @@ TEST(Variable_tests, Constructor)
 
 TEST(Variable_tests, Setting)
 {
-    const long long name_1{1};
-    const long long name_2{2};
+    const int name_1{1};
+    const int name_2{2};
 
     Variable a(name_1);
     Variable b(name_2);

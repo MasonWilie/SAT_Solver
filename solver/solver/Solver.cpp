@@ -166,12 +166,12 @@ Solver::Solution Solver::Solve(const BranchingHeuristic::BranchingType branching
     return solution;
 }
 
-std::set<std::set<long long>> Solver::GetClausesAsLongs() const
+std::set<std::set<int>> Solver::GetClausesAsLongs() const
 {
-    std::set<std::set<long long>> clauses_long_long;
+    std::set<std::set<int>> clauses_long_long;
     for (ClauseSetUnique_t::iterator iter = std::begin(clauses); iter != std::end(clauses); std::advance(iter, 1))
     {
-        clauses_long_long.insert((*iter)->GetPropositionsLongLong());
+        clauses_long_long.insert((*iter)->GetPropsAsInts());
     }
     return clauses_long_long;
 }
@@ -240,7 +240,7 @@ void Solver::ReadFile(std::string filename)
                 ThrowFormatErrorWithUrl();
             }
 
-            for (long long i = 1; i <= num_vars; i++)
+            for (int i = 1; i <= num_vars; i++)
             {
                 AtomicProposition::PropPair pair = AtomicProposition::CreatePropPair(i);
                 prop_map[i] = std::unique_ptr<AtomicProposition>(pair.regular);
@@ -278,7 +278,7 @@ void Solver::ReadFile(std::string filename)
     for (std::string s : element_strings)
     {
         // Convert the string to an integer
-        long long prop_num;
+        int prop_num;
         try
         {
             prop_num = std::stoi(s);

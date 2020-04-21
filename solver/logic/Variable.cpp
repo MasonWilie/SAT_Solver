@@ -1,9 +1,12 @@
 #include "Variable.h"
 
-Variable::Variable(long long name_) : name(name_)
-{}
+Variable::Variable(int name_)
+    : name(name_),
+      is_set(false)
+{
+}
 
-long long Variable::GetName() const
+int Variable::GetName() const
 {
     return name;
 }

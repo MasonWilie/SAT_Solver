@@ -15,8 +15,8 @@ VsidsBranching::VsidsBranching(PropMapUnique_t &prop_map_unique,
 
     for (auto iter = std::begin(clauses); iter != std::end(clauses); std::advance(iter, 1))
     {
-        std::set<long long> props_long = (*iter)->GetPropositionsLongLong();
-        for (long long p : props_long)
+        std::set<int> props_long = (*iter)->GetPropsAsInts();
+        for (int p : props_long)
         {
             count.at(raw_prop_map.at(p))++;
         }

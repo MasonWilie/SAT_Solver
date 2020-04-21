@@ -22,7 +22,7 @@ public:
     bool IsNot() const;
     bool SatisfiesClause() const;
     bool PresentInClause() const;
-    long long GetName() const;
+    int GetName() const;
     AtomicProposition *GetInverse() const;
     bool IsAsserted() const;
 
@@ -30,15 +30,15 @@ public:
     void UnAssert();
 
     bool operator()(const AtomicProposition *lhs, const AtomicProposition *rhs) const;
-    static AtomicProposition::PropPair CreatePropPair(long long var_name);
+    static AtomicProposition::PropPair CreatePropPair(int var_name);
 
 private:
-    AtomicProposition(std::shared_ptr<Variable> var_, long long name_);
-    AtomicProposition(std::shared_ptr<Variable> var_, long long name_, bool notted_);
+    AtomicProposition(std::shared_ptr<Variable> var_, int name_);
+    AtomicProposition(std::shared_ptr<Variable> var_, int name_, bool notted_);
     bool EvaluatesToTrue() const;
 
     const std::shared_ptr<Variable> var;
-    const long long name;
+    const int name;
     const bool notted;
     AtomicProposition *inverse;
 
@@ -51,7 +51,7 @@ typedef std::set<std::unique_ptr<AtomicProposition>> PropSetUnique_t;
 typedef std::vector<std::unique_ptr<AtomicProposition>> PropVecUnique_t;
 typedef std::vector<AtomicProposition *> PropVecRaw_t;
 
-typedef std::map<long long, std::unique_ptr<AtomicProposition>> PropMapUnique_t;
-typedef std::map<long long, AtomicProposition *> PropMapRaw_t;
+typedef std::map<int, std::unique_ptr<AtomicProposition>> PropMapUnique_t;
+typedef std::map<int, AtomicProposition *> PropMapRaw_t;
 
 #endif

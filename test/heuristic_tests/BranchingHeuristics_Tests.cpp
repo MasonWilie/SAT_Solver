@@ -9,7 +9,7 @@ TEST(RandomHeuristic, Randomness)
     PropMapUnique_t props_master;
     PropSetRaw_t props, set_props;
 
-    for (long long i = 1; i < 5; i++)
+    for (int i = 1; i < 5; i++)
     {
         AtomicProposition::PropPair pair = AtomicProposition::CreatePropPair(i);
         props_master.insert(std::make_pair(i, std::unique_ptr<AtomicProposition>(pair.regular)));

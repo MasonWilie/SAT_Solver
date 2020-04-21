@@ -6,7 +6,7 @@
 class BohmsBranching : public MaxMinClauseHeuristic
 {
 public:
-    BohmsBranching(long long num_vars,
+    BohmsBranching(int num_vars,
                    PropMapUnique_t &prop_map_unique);
 
 private:

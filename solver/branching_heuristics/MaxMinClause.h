@@ -6,7 +6,7 @@
 class MaxMinClauseHeuristic : public BranchingHeuristic
 {
 public:
-    MaxMinClauseHeuristic(long long num_vars,
+    MaxMinClauseHeuristic(int num_vars,
                           PropMapUnique_t &prop_map_unique);
 
     AtomicProposition *NextProposition(const ClauseSetUnique_t &clauses,
@@ -16,7 +16,7 @@ public:
 private:
     virtual int Score(std::pair<int, int> prop_pair) const = 0;
 
-    const long long num_vars;
+    const int num_vars;
     std::unique_ptr<BranchingHeuristic> random_brancher;
     PropMapRaw_t raw_prop_map;
 };

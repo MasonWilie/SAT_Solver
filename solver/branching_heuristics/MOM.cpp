@@ -1,6 +1,6 @@
 #include "MOM.h"
 
-MomsBranching::MomsBranching(long long num_vars,
+MomsBranching::MomsBranching(int num_vars,
                              PropMapUnique_t &prop_map_unique)
     : MaxMinClauseHeuristic(num_vars, prop_map_unique)
 {

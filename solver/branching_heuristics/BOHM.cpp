@@ -38,7 +38,7 @@ int min(int a, int b)
     }
 }
 
-BohmsBranching::BohmsBranching(long long num_vars,
+BohmsBranching::BohmsBranching(int num_vars,
                                PropMapUnique_t &prop_map_unique)
     : MaxMinClauseHeuristic(num_vars, prop_map_unique)
 {

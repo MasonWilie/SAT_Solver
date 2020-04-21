@@ -40,9 +40,9 @@ bool Clause::False() const
     return !clauses_exist;
 }
 
-std::set<long long> Clause::GetPropositionsLongLong() const
+std::set<int> Clause::GetPropsAsInts() const
 {
-    std::set<long long> props_long_long;
+    std::set<int> props_long_long;
     for (PropSetRaw_t::iterator iter = std::begin(propositions); iter != std::end(propositions); std::advance(iter, 1))
     {
         props_long_long.insert((*iter)->GetName());

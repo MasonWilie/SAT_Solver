@@ -1,6 +1,6 @@
 #include "AtomicProposition.h"
 
-AtomicProposition::PropPair AtomicProposition::CreatePropPair(long long var_name)
+AtomicProposition::PropPair AtomicProposition::CreatePropPair(int var_name)
 {
 
     std::shared_ptr<Variable> var(new Variable(var_name));
@@ -19,14 +19,14 @@ AtomicProposition *AtomicProposition::GetInverse() const
     return inverse;
 }
 
-AtomicProposition::AtomicProposition(std::shared_ptr<Variable> var_, long long name_)
+AtomicProposition::AtomicProposition(std::shared_ptr<Variable> var_, int name_)
     : var(var_),
       name(name_),
       notted(false)
 {
 }
 
-AtomicProposition::AtomicProposition(std::shared_ptr<Variable> var_, long long name_, bool notted_)
+AtomicProposition::AtomicProposition(std::shared_ptr<Variable> var_, int name_, bool notted_)
     : var(var_),
       name(name_),
       notted(notted_)
@@ -75,7 +75,7 @@ bool AtomicProposition::operator()(const AtomicProposition *lhs, const AtomicPro
     return lhs->name < rhs->name;
 }
 
-long long AtomicProposition::GetName() const
+int AtomicProposition::GetName() const
 {
     return name;
 }

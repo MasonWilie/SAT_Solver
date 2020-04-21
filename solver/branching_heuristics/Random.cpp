@@ -6,7 +6,7 @@ RandomBranching::RandomBranching(PropMapUnique_t &prop_map_unique)
 
     for (auto iter = std::begin(prop_map_unique); iter != std::end(prop_map_unique); std::advance(iter, 1))
     {
-        raw_prop_map.insert(std::pair<long long, AtomicProposition *>(iter->first, iter->second.get()));
+        raw_prop_map.insert(std::pair<int, AtomicProposition *>(iter->first, iter->second.get()));
     }
 }
 
@@ -29,9 +29,9 @@ AtomicProposition *RandomBranching::NextProposition(const ClauseSetUnique_t &cla
     {
         if ((*iter)->Size() == 1)
         {
-            std::set<long long> props = (*iter)->GetPropositionsLongLong();
+            std::set<int> props = (*iter)->GetPropsAsInts();
 
-            for (long long p : props)
+            for (int p : props)
             {
                 AtomicProposition *prop_ptr = raw_prop_map.at(p);
                 if (prop_ptr->PresentInClause())

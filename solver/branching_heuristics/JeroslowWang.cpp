@@ -1,7 +1,7 @@
 #include "JeroslowWang.h"
 
 
-JeroslowWang::JeroslowWang(Version version, long long num_vars, PropMapUnique_t &prop_map_unique)
+JeroslowWang::JeroslowWang(Version version, int num_vars, PropMapUnique_t &prop_map_unique)
     : random_brancher(new RandomBranching(prop_map_unique)),
       version(version),
       num_vars(num_vars)
@@ -11,7 +11,7 @@ JeroslowWang::JeroslowWang(Version version, long long num_vars, PropMapUnique_t 
 
     for (auto iter = std::begin(prop_map_unique); iter != std::end(prop_map_unique); std::advance(iter, 1))
     {
-        raw_prop_map.insert(std::pair<long long, AtomicProposition *>(iter->first, iter->second.get()));
+        raw_prop_map.insert(std::pair<int, AtomicProposition *>(iter->first, iter->second.get()));
     }
 }
 
@@ -23,9 +23,9 @@ AtomicProposition *JeroslowWang::NextProposition(const ClauseSetUnique_t &clause
     {
         if ((*iter)->Size() == 1)
         {
-            std::set<long long> props = (*iter)->GetPropositionsLongLong();
+            std::set<int> props = (*iter)->GetPropsAsInts();
 
-            for (long long p : props)
+            for (int p : props)
             {
                 AtomicProposition *prop_ptr = raw_prop_map.at(p);
                 if (prop_ptr->PresentInClause())
@@ -37,16 +37,16 @@ AtomicProposition *JeroslowWang::NextProposition(const ClauseSetUnique_t &clause
     }
 
     size_t max_clause_size = BranchingHeuristic::GetMaxClauseSize(clauses);
-    std::map<long long, std::vector<int>> prop_count;
+    std::map<int, std::vector<int>> prop_count;
 
     // Setting up a matrix to hold the count of each occurence of a propositoin based on the size of the clause
-    for (long long i = (version == Version::TWO_SIDED ? -num_vars : 1); i <= num_vars; i++)
+    for (int i = (version == Version::TWO_SIDED ? -num_vars : 1); i <= num_vars; i++)
     {
         if (i == 0)
         {
             continue;
         }
-        prop_count.insert(std::pair<long long, std::vector<int>>(i, std::vector<int>(max_clause_size, 0)));
+        prop_count.insert(std::pair<int, std::vector<int>>(i, std::vector<int>(max_clause_size, 0)));
     }
 
     // Iterate through each clause
@@ -58,11 +58,11 @@ AtomicProposition *JeroslowWang::NextProposition(const ClauseSetUnique_t &clause
             continue;
         }
 
-        std::set<long long> clause_longs = (*clause_iter)->GetPropositionsLongLong();
+        std::set<int> clause_longs = (*clause_iter)->GetPropsAsInts();
 
         size_t clause_size = clause_longs.size();
 
-        for (long long prop : clause_longs)
+        for (int prop : clause_longs)
         {
             if (!raw_prop_map.at(prop)->PresentInClause())
             {
@@ -78,9 +78,9 @@ AtomicProposition *JeroslowWang::NextProposition(const ClauseSetUnique_t &clause
         }
     }
 
-    std::map<long long, float> prop_scores;
+    std::map<int, float> prop_scores;
 
-    for (long long prop = (version == Version::TWO_SIDED ? -num_vars : 1); prop <= num_vars; prop++)
+    for (int prop = (version == Version::TWO_SIDED ? -num_vars : 1); prop <= num_vars; prop++)
     {
         if (prop == 0)
         {
@@ -101,13 +101,13 @@ AtomicProposition *JeroslowWang::NextProposition(const ClauseSetUnique_t &clause
         prop_scores[prop] = score;
     }
 
-    long long max_prop = 1;
+    int max_prop = 1;
     float max_score = -1.0;
 
-    std::set<long long> ties;
+    std::set<int> ties;
     bool is_tie = false;
 
-    for (long long prop = 1; prop <= num_vars; prop++)
+    for (int prop = 1; prop <= num_vars; prop++)
     {
         float score = prop_scores[prop] + (version == Version::TWO_SIDED ? prop_scores[-prop] : 0);
         if (score >= max_score)

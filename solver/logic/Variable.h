@@ -7,9 +7,9 @@
 class Variable
 {
 public:
-    Variable(long long name_);
+    Variable(int name_);
 
-    long long GetName() const;
+    int GetName() const;
     bool IsSet() const;
     bool IsTrue() const;
 
@@ -17,10 +17,10 @@ public:
     void UnSet();
 
 private:
-    long long name;
+    int name;
     bool is_set{false};
     bool truth_value;
 };
 
-typedef std::map<long long, std::unique_ptr<Variable>> VariableMapUnique_t;
+typedef std::map<int, std::unique_ptr<Variable>> VariableMapUnique_t;
 #endif

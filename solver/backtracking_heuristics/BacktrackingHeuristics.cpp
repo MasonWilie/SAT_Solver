@@ -35,6 +35,7 @@ void DpllBacktracking::Update(AtomicProposition* decision)
     history.top().last_set = decision;
 }
 
+
 /**
  * @brief Standard backtracking algorithm, which chooses the next variable
  * in the basic way that DPLL does. Just move one decision backwards and see

@@ -1,7 +1,7 @@
 #include "MaxMinClause.h"
 
 
-MaxMinClauseHeuristic::MaxMinClauseHeuristic(long long num_vars,
+MaxMinClauseHeuristic::MaxMinClauseHeuristic(int num_vars,
                                              PropMapUnique_t &prop_map_unique)
     : num_vars(num_vars),
       random_brancher(new RandomBranching(prop_map_unique))
@@ -9,7 +9,7 @@ MaxMinClauseHeuristic::MaxMinClauseHeuristic(long long num_vars,
     // Create a map from proposition names to their pointers
     for (auto iter = std::begin(prop_map_unique); iter != std::end(prop_map_unique); std::advance(iter, 1))
     {
-        raw_prop_map.insert(std::pair<long long, AtomicProposition *>(iter->first, iter->second.get()));
+        raw_prop_map.insert(std::pair<int, AtomicProposition *>(iter->first, iter->second.get()));
     }
 }
 
@@ -20,21 +20,21 @@ AtomicProposition *MaxMinClauseHeuristic::NextProposition(const ClauseSetUnique_
     // Get the current maximum clause size (could change when adding clauses)
     size_t max_clause_size = BranchingHeuristic::GetMaxClauseSize(clauses);
 
-    std::map<long long, std::set<long long>> unit_clauses_found;
+    std::map<int, std::set<int>> unit_clauses_found;
 
     // Initially, you consider all props
-    std::set<long long> props_to_consider;
+    std::set<int> props_to_consider;
     for (int i = 0; i < num_vars + 1; i++)
     {
         props_to_consider.insert(i);
         props_to_consider.insert(-i);
     }
 
-    std::set<long long> ties;
+    std::set<int> ties;
     // Start with clauses of size 1, and go all the way up to the maximum clause size if needed
     for (size_t clause_size = 1; clause_size < max_clause_size + 1; clause_size++)
     {
-        std::map<long long, std::pair<int, int>> prop_map;
+        std::map<int, std::pair<int, int>> prop_map;
         // Iterate through all clauses
         for (auto clause_iter = std::begin(clauses); clause_iter != std::end(clauses); std::advance(clause_iter, 1))
         {
@@ -45,10 +45,10 @@ AtomicProposition *MaxMinClauseHeuristic::NextProposition(const ClauseSetUnique_
                 continue;
             }
 
-            std::set<long long> props = (*clause_iter)->GetPropositionsLongLong();
+            std::set<int> props = (*clause_iter)->GetPropsAsInts();
 
             // Iterate through each proposition in the clause
-            for (long long prop_num : props)
+            for (int prop_num : props)
             {
                 // If the proposition is not being considered or is not present in the clause, continue
                 if (props_to_consider.find(prop_num) == std::end(props_to_consider) || !raw_prop_map.at(prop_num)->PresentInClause())
@@ -66,7 +66,7 @@ AtomicProposition *MaxMinClauseHeuristic::NextProposition(const ClauseSetUnique_
                 // Create an entry in the map for the prop if none exists
                 if (prop_map.find(prop_num) == std::end(prop_map))
                 {
-                    prop_map.insert(std::pair<long long, std::pair<int, int>>(prop_num, std::pair<int, int>(0, 0)));
+                    prop_map.insert(std::pair<int, std::pair<int, int>>(prop_num, std::pair<int, int>(0, 0)));
                 }
 
                 // Add add one to the corresponding prop (first = not notted, second = notted)
@@ -87,8 +87,9 @@ AtomicProposition *MaxMinClauseHeuristic::NextProposition(const ClauseSetUnique_
             continue;
         }
 
-        long long best_score_prop;
+        int best_score_prop = 0;
         int best_score = -1;
+        std::pair<int, int> best_score_count = std::make_pair(0, 0);
         bool tie = false;
 
         // Try to find the maximum score for each proposition
@@ -109,6 +110,7 @@ AtomicProposition *MaxMinClauseHeuristic::NextProposition(const ClauseSetUnique_
                     ties.clear();
                     ties.insert(map_iter->first);
                     best_score = score;
+                    best_score_count = map_iter->second;
                     best_score_prop = map_iter->first;
                     tie = false;
                 }
@@ -118,12 +120,12 @@ AtomicProposition *MaxMinClauseHeuristic::NextProposition(const ClauseSetUnique_
         // If there was a maximum score, return the prop.
         if (!tie)
         {
-            return raw_prop_map.at(best_score_prop);
+            return raw_prop_map.at((best_score_count.first >= best_score_count.second ? best_score_prop : -best_score_prop));
         }
 
         // If there was no max score, narrow the search space and try again
         props_to_consider.clear();
-        for (long long p : ties)
+        for (int p : ties)
         {
             props_to_consider.insert(p);
         }

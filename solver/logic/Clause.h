@@ -18,7 +18,7 @@ public:
     bool Satisfied() const;
     bool False() const;
 
-    std::set<long long> GetPropositionsLongLong() const;
+    std::set<int> GetPropsAsInts() const;
 
 private:
     PropSetRaw_t propositions;

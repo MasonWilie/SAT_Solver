@@ -12,7 +12,7 @@ public:
         TWO_SIDED
     };
 
-    JeroslowWang(Version version, long long num_vars, PropMapUnique_t &prop_map_unique);
+    JeroslowWang(Version version, int num_vars, PropMapUnique_t &prop_map_unique);
 
     AtomicProposition *NextProposition(const ClauseSetUnique_t &clauses,
                                        const PropSetRaw_t &unset_props,
@@ -22,7 +22,7 @@ private:
     std::unique_ptr<BranchingHeuristic> random_brancher;
 
     const Version version;
-    const long long num_vars;
+    const int num_vars;
 
     PropMapRaw_t raw_prop_map;
 

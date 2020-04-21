@@ -10,7 +10,7 @@ TEST(Backtracking, Standard)
 
     AtomicProposition* prop;
 
-    long long var_names[] = {1, 2, 3};
+    int var_names[] = {1, 2, 3};
     size_t num_vars{3};
 
     for (size_t i = 0; i < num_vars; i++)

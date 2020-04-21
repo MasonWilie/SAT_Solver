@@ -30,11 +30,11 @@ TEST(Solver, ReadFile)
 {
     Solver solver("test_data/simple_sat.cnf");
 
-    std::set<long long> c1 = {-2, 4, 1};
-    std::set<long long> c2 = {-3, 1, 2};
-    std::set<long long> c3 = {4, -3, 2};
+    std::set<int> c1 = {-2, 4, 1};
+    std::set<int> c2 = {-3, 1, 2};
+    std::set<int> c3 = {4, -3, 2};
 
-    std::set<std::set<long long>> clauses_long_long = solver.GetClausesAsLongs();
+    std::set<std::set<int>> clauses_long_long = solver.GetClausesAsLongs();
 
     EXPECT_TRUE(std::find(std::begin(clauses_long_long), std::end(clauses_long_long), c1) != std::end(clauses_long_long));
     EXPECT_TRUE(std::find(std::begin(clauses_long_long), std::end(clauses_long_long), c2) != std::end(clauses_long_long));

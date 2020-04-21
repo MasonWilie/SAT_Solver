@@ -41,6 +41,10 @@ public:
 class DpllBacktracking : public BacktrackingHeuristic
 {
 public:
+
+    DpllBacktracking()=default;
+    ~DpllBacktracking()=default;
+
     struct BacktrackingNode
     {
         AtomicProposition* regular{nullptr};

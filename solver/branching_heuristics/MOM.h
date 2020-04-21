@@ -6,7 +6,7 @@
 class MomsBranching : public MaxMinClauseHeuristic
 {
 public:
-    MomsBranching(long long num_vars,
+    MomsBranching(int num_vars,
                   PropMapUnique_t &prop_map_unique);
 
 private:

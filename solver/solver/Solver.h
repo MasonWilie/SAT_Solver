@@ -10,7 +10,7 @@
 
 struct Problem
 {
-    std::set<std::set<long long>> clauses;
+    std::set<std::set<int>> clauses;
 };
 
 class Solver
@@ -20,7 +20,7 @@ public:
     struct Solution
     {
         bool SAT;
-        std::set<long long> assertions;
+        std::set<int> assertions;
 
         void PrintAssertions()
         {
@@ -65,7 +65,7 @@ public:
     Solution Solve(const BranchingHeuristic::BranchingType branching_type,
                    const BacktrackingHeuristic::BacktrackingType backtracking_type);
 
-    std::set<std::set<long long>> GetClausesAsLongs() const;
+    std::set<std::set<int>> GetClausesAsLongs() const;
 
 private:
     bool Step();
@@ -74,7 +74,7 @@ private:
     std::unique_ptr<BranchingHeuristic> CreateBranchingHeuristic(BranchingHeuristic::BranchingType type);
     std::unique_ptr<BacktrackingHeuristic> CreateBacktrackingHeuristic(BacktrackingHeuristic::BacktrackingType type);
 
-    long long num_vars;
+    int num_vars;
 
     ClauseSetUnique_t clauses;
     PropMapUnique_t prop_map;
