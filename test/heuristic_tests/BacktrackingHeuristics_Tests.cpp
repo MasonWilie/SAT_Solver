@@ -4,72 +4,72 @@
 TEST(Backtracking, Standard)
 {
     ClauseSetUnique_t clauses;
-    PropMapUnique_t prop_map;
-    PropSetRaw_t unset_props;
-    PropSetRaw_t set_props;
+    LitMapUnique_t lit_map;
+    LitSetRaw_t unset_lits;
+    LitSetRaw_t set_lits;
 
-    AtomicProposition* prop;
+    Literal* lit;
 
     int var_names[] = {1, 2, 3};
     size_t num_vars{3};
 
     for (size_t i = 0; i < num_vars; i++)
     {
-        AtomicProposition::PropPair pair = AtomicProposition::CreatePropPair(var_names[i]);
-        prop_map[var_names[i]] = std::unique_ptr<AtomicProposition>(pair.regular);
-        prop_map[var_names[i]*-1] = std::unique_ptr<AtomicProposition>(pair.notted);
+        Literal::LitPair pair = Literal::CreateLitPair(var_names[i]);
+        lit_map[var_names[i]] = std::unique_ptr<Literal>(pair.regular);
+        lit_map[var_names[i]*-1] = std::unique_ptr<Literal>(pair.notted);
 
-        unset_props.insert(pair.regular);
-        unset_props.insert(pair.notted);
+        unset_lits.insert(pair.regular);
+        unset_lits.insert(pair.notted);
     }
 
     DpllBacktracking backtracker;
 
-    set_props.insert(prop_map[var_names[0]].get());
-    unset_props.erase(prop_map[var_names[0]].get());
+    set_lits.insert(lit_map[var_names[0]].get());
+    unset_lits.erase(lit_map[var_names[0]].get());
 
-    EXPECT_EQ(set_props.size(), 1);
-    EXPECT_EQ(unset_props.size(), prop_map.size() - 1);
+    EXPECT_EQ(set_lits.size(), 1);
+    EXPECT_EQ(unset_lits.size(), lit_map.size() - 1);
 
     
-    prop = prop_map[var_names[0]].get();
-    backtracker.Update(prop);
+    lit = lit_map[var_names[0]].get();
+    backtracker.Update(lit);
 
-    AtomicProposition* suggested_prop = backtracker.Backtrack(clauses, unset_props, set_props);
+    Literal* suggested_lit = backtracker.Backtrack(clauses, unset_lits, set_lits);
 
-    EXPECT_EQ(suggested_prop, prop_map[var_names[0]*-1].get());
-    EXPECT_EQ(unset_props.size(), prop_map.size());
-    EXPECT_EQ(set_props.size(), 0);
+    EXPECT_EQ(suggested_lit, lit_map[var_names[0]*-1].get());
+    EXPECT_EQ(unset_lits.size(), lit_map.size());
+    EXPECT_EQ(set_lits.size(), 0);
 
-    prop = suggested_prop;
+    lit = suggested_lit;
 
-    set_props.insert(suggested_prop);
-    unset_props.erase(suggested_prop);
-    backtracker.Update(prop);
+    set_lits.insert(suggested_lit);
+    unset_lits.erase(suggested_lit);
+    backtracker.Update(lit);
 
-    suggested_prop = backtracker.Backtrack(clauses, unset_props, set_props);
+    suggested_lit = backtracker.Backtrack(clauses, unset_lits, set_lits);
 
-    EXPECT_EQ(suggested_prop, nullptr);
+    EXPECT_EQ(suggested_lit, nullptr);
 
     backtracker.Reset();
 
     for (size_t i{0}; i < num_vars; i++)
     {
-        prop = prop_map[var_names[i]].get();
-        backtracker.Update(prop);
+        lit = lit_map[var_names[i]].get();
+        backtracker.Update(lit);
     }
 
     for (size_t i{0}; i < num_vars; i++)
     {
-        suggested_prop = backtracker.Backtrack(clauses, unset_props, set_props);
-        EXPECT_EQ(suggested_prop, prop_map[var_names[num_vars - i - 1]*-1].get());
+        suggested_lit = backtracker.Backtrack(clauses, unset_lits, set_lits);
+        EXPECT_EQ(suggested_lit, lit_map[var_names[num_vars - i - 1]*-1].get());
 
-        prop = suggested_prop;
-        backtracker.Update(prop); 
+        lit = suggested_lit;
+        backtracker.Update(lit); 
     }
 
-    suggested_prop = backtracker.Backtrack(clauses, unset_props, set_props);
-    EXPECT_EQ(suggested_prop, nullptr);
+    suggested_lit = backtracker.Backtrack(clauses, unset_lits, set_lits);
+    EXPECT_EQ(suggested_lit, nullptr);
 
     backtracker.Reset();
 

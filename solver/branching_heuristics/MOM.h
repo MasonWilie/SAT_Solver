@@ -7,10 +7,10 @@ class MomsBranching : public MaxMinClauseHeuristic
 {
 public:
     MomsBranching(int num_vars,
-                  PropMapUnique_t &prop_map_unique);
+                  LitMapUnique_t &lit_map_unique);
 
 private:
-    int Score(std::pair<int, int> prop_pair) const;
+    int Score(std::pair<int, int> lit_pair) const;
 
     const float k = 3.0;
 };

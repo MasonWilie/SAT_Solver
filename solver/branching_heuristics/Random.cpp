@@ -1,12 +1,12 @@
 #include "Random.h"
 
-RandomBranching::RandomBranching(PropMapUnique_t &prop_map_unique)
+RandomBranching::RandomBranching(LitMapUnique_t &lit_map_unique)
 {
     srand(time(NULL));
 
-    for (auto iter = std::begin(prop_map_unique); iter != std::end(prop_map_unique); std::advance(iter, 1))
+    for (auto iter = std::begin(lit_map_unique); iter != std::end(lit_map_unique); std::advance(iter, 1))
     {
-        raw_prop_map.insert(std::pair<int, AtomicProposition *>(iter->first, iter->second.get()));
+        raw_lit_map.insert(std::pair<int, Literal *>(iter->first, iter->second.get()));
     }
 }
 
@@ -17,36 +17,36 @@ RandomBranching::RandomBranching(PropMapUnique_t &prop_map_unique)
  * Function is currently extreamly inefficient and needs refactoring
  * 
  * @param clauses All clauses (not used in this algorithm)
- * @param unset_props Propositions that are not currently set
- * @param set_props Propositions that are currently set
- * @return AtomicProposition* Next proposition to set
+ * @param unset_lits literals that are not currently set
+ * @param set_lits literals that are currently set
+ * @return Literal* Next literal to set
  */
-AtomicProposition *RandomBranching::NextProposition(const ClauseSetUnique_t &clauses,
-                                                    const PropSetRaw_t &unset_props,
-                                                    const PropSetRaw_t &set_props) const
+Literal *RandomBranching::NextLiteral(const ClauseSetUnique_t &clauses,
+                                                    const LitSetRaw_t &unset_lits,
+                                                    const LitSetRaw_t &set_lits) const
 {
     for (auto iter = std::begin(clauses); iter != std::end(clauses); std::advance(iter, 1))
     {
         if ((*iter)->Size() == 1)
         {
-            std::set<int> props = (*iter)->GetPropsAsInts();
+            std::set<int> lits = (*iter)->GetLitsAsInts();
 
-            for (int p : props)
+            for (int p : lits)
             {
-                AtomicProposition *prop_ptr = raw_prop_map.at(p);
-                if (prop_ptr->PresentInClause())
+                Literal *lit_ptr = raw_lit_map.at(p);
+                if (lit_ptr->PresentInClause())
                 {
-                    return prop_ptr;
+                    return lit_ptr;
                 }
             }
         }
     }
 
-    PropSetRaw_t::iterator iter;
+    LitSetRaw_t::iterator iter;
     do
     {
-        iter = std::begin(unset_props);
-        std::advance(iter, rand() % unset_props.size());
+        iter = std::begin(unset_lits);
+        std::advance(iter, rand() % unset_lits.size());
     } while ((*iter)->GetInverse()->IsAsserted());
 
     return *iter;

@@ -6,29 +6,29 @@ TEST(RandomHeuristic, Randomness)
 {
     
     ClauseSetUnique_t clauses;
-    PropMapUnique_t props_master;
-    PropSetRaw_t props, set_props;
+    LitMapUnique_t lits_master;
+    LitSetRaw_t lits, set_lits;
 
     for (int i = 1; i < 5; i++)
     {
-        AtomicProposition::PropPair pair = AtomicProposition::CreatePropPair(i);
-        props_master.insert(std::make_pair(i, std::unique_ptr<AtomicProposition>(pair.regular)));
-        props_master.insert(std::make_pair(-i, std::unique_ptr<AtomicProposition>(pair.notted)));
+        Literal::LitPair pair = Literal::CreateLitPair(i);
+        lits_master.insert(std::make_pair(i, std::unique_ptr<Literal>(pair.regular)));
+        lits_master.insert(std::make_pair(-i, std::unique_ptr<Literal>(pair.notted)));
     }
 
-    RandomBranching rb(props_master);
+    RandomBranching rb(lits_master);
 
-    for (auto iter = std::begin(props_master); iter != std::end(props_master); iter++)
+    for (auto iter = std::begin(lits_master); iter != std::end(lits_master); iter++)
     {
-        props.insert(iter->second.get());
+        lits.insert(iter->second.get());
     }
 
-    PropSetRaw_t chosen_props;
+    LitSetRaw_t chosen_lits;
 
     for (int i = 0; i < 10000; i++)
     {
-        chosen_props.insert(rb.NextProposition(clauses, props, set_props));
+        chosen_lits.insert(rb.NextLiteral(clauses, lits, set_lits));
     }
 
-    EXPECT_EQ(chosen_props.size(), props.size());
+    EXPECT_EQ(chosen_lits.size(), lits.size());
 }

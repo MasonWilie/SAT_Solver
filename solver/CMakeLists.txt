@@ -3,8 +3,8 @@ project(Core)
 set ( CMAKE_CXX_FLAGS "-Wall -g -Og")
 
 # All sources that also need to be tested in unit tests go into a static library
-add_library(core_lib STATIC ${CMAKE_CURRENT_SOURCE_DIR}/logic/AtomicProposition.h
-                            ${CMAKE_CURRENT_SOURCE_DIR}/logic/AtomicProposition.cpp
+add_library(core_lib STATIC ${CMAKE_CURRENT_SOURCE_DIR}/logic/Literal.h
+                            ${CMAKE_CURRENT_SOURCE_DIR}/logic/Literal.cpp
                             ${CMAKE_CURRENT_SOURCE_DIR}/logic/Variable.h
                             ${CMAKE_CURRENT_SOURCE_DIR}/logic/Variable.cpp
                             ${CMAKE_CURRENT_SOURCE_DIR}/logic/Clause.h

@@ -39,12 +39,12 @@ int min(int a, int b)
 }
 
 BohmsBranching::BohmsBranching(int num_vars,
-                               PropMapUnique_t &prop_map_unique)
-    : MaxMinClauseHeuristic(num_vars, prop_map_unique)
+                               LitMapUnique_t &lit_map_unique)
+    : MaxMinClauseHeuristic(num_vars, lit_map_unique)
 {
 }
 
-int BohmsBranching::Score(std::pair<int, int> prop_pair) const
+int BohmsBranching::Score(std::pair<int, int> lit_pair) const
 {
-    return alpha * max(prop_pair.first, prop_pair.second) + beta * min(prop_pair.first, prop_pair.second);
+    return alpha * max(lit_pair.first, lit_pair.second) + beta * min(lit_pair.first, lit_pair.second);
 }

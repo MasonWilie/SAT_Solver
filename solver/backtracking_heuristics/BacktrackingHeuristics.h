@@ -26,8 +26,8 @@ public:
     BacktrackingHeuristic()=default;
     ~BacktrackingHeuristic()=default;
 
-    virtual void Update(AtomicProposition* decision)=0;
-    virtual AtomicProposition* Backtrack(ClauseSetUnique_t &clauses, PropSetRaw_t &unset_props, PropSetRaw_t &set_props)=0;
+    virtual void Update(Literal* decision)=0;
+    virtual Literal* Backtrack(ClauseSetUnique_t &clauses, LitSetRaw_t &unset_lits, LitSetRaw_t &set_lits)=0;
     virtual void Reset()=0;
 };
 
@@ -47,13 +47,13 @@ public:
 
     struct BacktrackingNode
     {
-        AtomicProposition* regular{nullptr};
-        AtomicProposition* notted{nullptr};
-        AtomicProposition* last_set{nullptr};
+        Literal* regular{nullptr};
+        Literal* notted{nullptr};
+        Literal* last_set{nullptr};
     };
 
-    void Update(AtomicProposition* decision);
-    AtomicProposition* Backtrack(ClauseSetUnique_t &clauses, PropSetRaw_t &unset_props, PropSetRaw_t &set_props);
+    void Update(Literal* decision);
+    Literal* Backtrack(ClauseSetUnique_t &clauses, LitSetRaw_t &unset_lits, LitSetRaw_t &set_lits);
     void Reset();
 private:
     std::stack<BacktrackingNode> history;

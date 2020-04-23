@@ -12,11 +12,11 @@ public:
         TWO_SIDED
     };
 
-    JeroslowWang(Version version, int num_vars, PropMapUnique_t &prop_map_unique);
+    JeroslowWang(Version version, int num_vars, LitMapUnique_t &lit_map_unique);
 
-    AtomicProposition *NextProposition(const ClauseSetUnique_t &clauses,
-                                       const PropSetRaw_t &unset_props,
-                                       const PropSetRaw_t &set_props) const;
+    Literal *NextLiteral(const ClauseSetUnique_t &clauses,
+                                       const LitSetRaw_t &unset_lits,
+                                       const LitSetRaw_t &set_lits) const;
 
 private:
     std::unique_ptr<BranchingHeuristic> random_brancher;
@@ -24,7 +24,7 @@ private:
     const Version version;
     const int num_vars;
 
-    PropMapRaw_t raw_prop_map;
+    LitMapRaw_t raw_lit_map;
 
     float float_error = 1e-9;
 };

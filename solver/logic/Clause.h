@@ -1,7 +1,7 @@
 #ifndef CLAUSE_H
 #define CLAUSE_H
 
-#include "AtomicProposition.h"
+#include "Literal.h"
 
 #include <algorithm>
 
@@ -11,17 +11,18 @@ class Clause
 public:
     Clause()=default;
 
-    void AddProposition(AtomicProposition* prop);
-    bool ContainsProposition(AtomicProposition* prop) const;
+    void AddLiteral(Literal* lit);
+    bool ContainsLiteral(Literal* lit) const;
 
     size_t Size() const;
     bool Satisfied() const;
     bool False() const;
 
-    std::set<int> GetPropsAsInts() const;
+    std::set<int> GetLitsAsInts() const;
+    LitSetRaw_t GetLitsAsPtrs() const;
 
 private:
-    PropSetRaw_t propositions;
+    LitSetRaw_t literals;
 };
 
 // Types

@@ -12,6 +12,8 @@ int main(int argc, char** argv)
     Solver::Solution solution = solver.Solve(options.branching_type, options.backtrack_type);
     stop = std::chrono::high_resolution_clock::now();
 
+    double time = std::chrono::duration_cast<std::chrono::duration<double>>(stop - start).count();
+
     if (!solution.SAT)
     {
         std::cout << "UNSAT\n";
@@ -24,11 +26,16 @@ int main(int argc, char** argv)
             std::cout << *iter << " ";
         }
         std::cout << "\n";
+        return 0;
     }else
     {
         std::cout << "SAT\n";
         std::cout << "Outputting solution to file\n";
-        solution.WriteToFile(options.output_filename);
+    }
+
+    if (options.output_to_file)
+    {
+        solution.WriteToFile(options.output_filename, time);
     }
 
     std::cout << "Time to solution: " << std::chrono::duration_cast<std::chrono::duration<double>>(stop - start).count() << " s\n";

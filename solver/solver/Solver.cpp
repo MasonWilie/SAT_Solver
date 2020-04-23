@@ -123,15 +123,17 @@ Solver::Solution Solver::Solve(const BranchingHeuristic::BranchingType branching
     std::unique_ptr<BacktrackingHeuristic> backtracking_heuristic(CreateBacktrackingHeuristic(backtracking_type));
 
     bool prop_from_backtrack{false};
-    AtomicProposition *next_prop;
+    Literal *next_prop;
 
     next_prop = nullptr;
 
     do
     {
+        solution.iterations++;
+
         if (!prop_from_backtrack)
         {
-            next_prop = branching_heuristic->NextProposition(clauses, unset_props, set_props);
+            next_prop = branching_heuristic->NextLiteral(clauses, unset_props, set_props);
         }
 
         unset_props.erase(next_prop);
@@ -171,7 +173,7 @@ std::set<std::set<int>> Solver::GetClausesAsInts() const
     std::set<std::set<int>> clauses_long_long;
     for (ClauseSetUnique_t::iterator iter = std::begin(clauses); iter != std::end(clauses); std::advance(iter, 1))
     {
-        clauses_long_long.insert((*iter)->GetPropsAsInts());
+        clauses_long_long.insert((*iter)->GetLitsAsInts());
     }
     return clauses_long_long;
 }
@@ -242,9 +244,9 @@ void Solver::ReadFile(std::string filename)
 
             for (int i = 1; i <= num_vars; i++)
             {
-                AtomicProposition::PropPair pair = AtomicProposition::CreatePropPair(i);
-                prop_map[i] = std::unique_ptr<AtomicProposition>(pair.regular);
-                prop_map[-i] = std::unique_ptr<AtomicProposition>(pair.notted);
+                Literal::LitPair pair = Literal::CreateLitPair(i);
+                prop_map[i] = std::unique_ptr<Literal>(pair.regular);
+                prop_map[-i] = std::unique_ptr<Literal>(pair.notted);
             }
 
             for (int i = 0; i < num_clauses; i++)
@@ -314,11 +316,11 @@ void Solver::ReadFile(std::string filename)
                 exit(1);
             }
 
-            (*clause_iterator)->AddProposition(prop_map[prop_num].get());
+            (*clause_iterator)->AddLiteral(prop_map[prop_num].get());
         }
     }
 
-    for (PropMapUnique_t::iterator iter = std::begin(prop_map); iter != std::end(prop_map); iter++)
+    for (LitMapUnique_t::iterator iter = std::begin(prop_map); iter != std::end(prop_map); iter++)
     {
         unset_props.insert(iter->second.get());
         set_props.clear();

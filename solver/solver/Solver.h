@@ -19,8 +19,9 @@ public:
 
     struct Solution
     {
-        bool SAT;
+        bool SAT{false};
         std::set<int> assertions;
+        uint64_t iterations{0};
 
         void PrintAssertions()
         {
@@ -31,7 +32,7 @@ public:
             std::cout << std::endl;
         }
 
-        void WriteToFile(const std::string filename) const
+        void WriteToFile(const std::string filename, double time) const
         {
             std::ofstream out(filename);
 
@@ -41,10 +42,16 @@ public:
                 return;
             }
 
-            for (auto iter = std::begin(assertions); iter != std::end(assertions); std::advance(iter, 1))
+            if (SAT)
             {
-                out << *iter << " ";
+                for (auto iter = std::begin(assertions); iter != std::end(assertions); std::advance(iter, 1))
+                {
+                    out << *iter << " ";
+                }
+                out << "\n";
             }
+            out << time << "\n";
+            out << iterations;
         }
     };
 
@@ -77,9 +84,9 @@ private:
     int num_vars;
 
     ClauseSetUnique_t clauses;
-    PropMapUnique_t prop_map;
-    PropSetRaw_t set_props;
-    PropSetRaw_t unset_props;
+    LitMapUnique_t prop_map;
+    LitSetRaw_t set_props;
+    LitSetRaw_t unset_props;
 };
 
 #endif

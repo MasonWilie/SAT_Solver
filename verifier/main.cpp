@@ -18,7 +18,7 @@ ProgramOptions ReadProgramOptions(int argc, char **argv)
 
     boost::program_options::options_description desc("Verifier Usage");
 
-    desc.add_options()("help, h", "print usage message")("in,i", boost::program_options::value<std::string>(), "Input file given to SAT solver (required)")("out,o", boost::program_options::value<std::string>(), "Output file given by SAT solver (required)");
+    desc.add_options()("help,h", "print usage message")("in,i", boost::program_options::value<std::string>(), "Input file given to SAT solver (required)")("out,o", boost::program_options::value<std::string>(), "Output file given by SAT solver (required)");
 
     boost::program_options::variables_map vm;
     boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
@@ -129,6 +129,7 @@ std::set<std::set<int>> ReadInputFile(const std::string filename)
 
     std::string line;
     std::set<std::set<int>> clauses;
+    std::set<int> clause;
     while(!in.eof())
     {
         std::getline(in, line);
@@ -139,29 +140,21 @@ std::set<std::set<int>> ReadInputFile(const std::string filename)
 
         std::vector<std::string> clause_strings = SpaceDelimit(line);
 
-        if (clause_strings.back() == " ")
-        {
-            clause_strings.pop_back();
-        }
-
-        if (clause_strings.back() != "0")
-        {
-            std::cout << "There is a clause line that doesn't end with a zero." << std::endl;
-            exit(0);
-        }
-
-        clause_strings.pop_back();
-
-        std::set<int> clause;
-
         for (std::string s : clause_strings)
         {
-            clause.insert(std::stoi(s));
+            int prop_num = std::stoi(s);
+
+            if (prop_num == 0)
+            {
+                clauses.insert(clause);
+                clause.clear();
+            }else
+            {
+                clause.insert(prop_num);
+            }
+            
         }
-
-        clauses.insert(clause);
     }
-
 
     return clauses;
 

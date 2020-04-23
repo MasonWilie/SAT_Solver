@@ -1,55 +1,36 @@
 #include "JeroslowWang.h"
 
 
-JeroslowWang::JeroslowWang(Version version, int num_vars, PropMapUnique_t &prop_map_unique)
-    : random_brancher(new RandomBranching(prop_map_unique)),
+JeroslowWang::JeroslowWang(Version version, int num_vars, LitMapUnique_t &lit_map_unique)
+    : random_brancher(new RandomBranching(lit_map_unique)),
       version(version),
       num_vars(num_vars)
 {
 
     srand(time(NULL));
 
-    for (auto iter = std::begin(prop_map_unique); iter != std::end(prop_map_unique); std::advance(iter, 1))
+    for (auto iter = std::begin(lit_map_unique); iter != std::end(lit_map_unique); std::advance(iter, 1))
     {
-        raw_prop_map.insert(std::pair<int, AtomicProposition *>(iter->first, iter->second.get()));
+        raw_lit_map.insert(std::pair<int, Literal *>(iter->first, iter->second.get()));
     }
 }
 
-AtomicProposition *JeroslowWang::NextProposition(const ClauseSetUnique_t &clauses,
-                                                 const PropSetRaw_t &unset_props,
-                                                 const PropSetRaw_t &set_props) const
+Literal *JeroslowWang::NextLiteral(const ClauseSetUnique_t &clauses,
+                                                 const LitSetRaw_t &unset_lits,
+                                                 const LitSetRaw_t &set_lits) const
 {
-    for (auto iter = std::begin(clauses); iter != std::end(clauses); std::advance(iter, 1))
-    {
-        if ((*iter)->Size() == 1)
-        {
-            std::set<int> props = (*iter)->GetPropsAsInts();
-
-            for (int p : props)
-            {
-                AtomicProposition *prop_ptr = raw_prop_map.at(p);
-                if (prop_ptr->PresentInClause())
-                {
-                    return prop_ptr;
-                }
-            }
-        }
-    }
 
     size_t max_clause_size = BranchingHeuristic::GetMaxClauseSize(clauses);
-    std::map<int, std::vector<int>> prop_count;
+    std::map<Literal *, std::vector<int>> lit_count;
 
-    // Setting up a matrix to hold the count of each occurence of a propositoin based on the size of the clause
-    for (int i = (version == Version::TWO_SIDED ? -num_vars : 1); i <= num_vars; i++)
+    // Setting up a matrix to hold the count of each occurence of a literal based on the size of the clause
+    for (auto iter = std::begin(raw_lit_map); iter != std::end(raw_lit_map); std::advance(iter, 1))
     {
-        if (i == 0)
-        {
-            continue;
-        }
-        prop_count.insert(std::pair<int, std::vector<int>>(i, std::vector<int>(max_clause_size, 0)));
+        lit_count.insert(std::pair<Literal*, std::vector<int>>(iter->second, std::vector<int>(max_clause_size, 0)));
     }
 
-    // Iterate through each clause
+    // Iterate through each clause and store counts in a vector where the index corresponds to the size of
+    // the clause which the literal was found in
     for (auto clause_iter = std::begin(clauses); clause_iter != std::end(clauses); std::advance(clause_iter, 1))
     {
         // Check to see if this clause is present, and of the desired size
@@ -58,92 +39,97 @@ AtomicProposition *JeroslowWang::NextProposition(const ClauseSetUnique_t &clause
             continue;
         }
 
-        std::set<int> clause_longs = (*clause_iter)->GetPropsAsInts();
-
-        size_t clause_size = clause_longs.size();
-
-        for (int prop : clause_longs)
+        // Count every literal in the clause and store it based on its size
+        LitSetRaw_t clause_lits = (*clause_iter)->GetLitsAsPtrs();
+        size_t clause_size = clause_lits.size();
+        for (Literal* lit : clause_lits)
         {
-            if (!raw_prop_map.at(prop)->PresentInClause())
+            if (version == Version::ONE_SIDED && lit->IsNot())
             {
                 continue;
             }
-
-            if (version == Version::ONE_SIDED && prop < 0)
-            {
-                continue;
-            }
-
-            prop_count[prop][clause_size - 1]++;
+            lit_count[lit][clause_size - 1]++;
         }
     }
 
-    std::map<int, float> prop_scores;
 
-    for (int prop = (version == Version::TWO_SIDED ? -num_vars : 1); prop <= num_vars; prop++)
+    // Calculate the scores over the literals
+    std::map<Literal*, float> lit_scores;
+    for (auto iter = std::begin(lit_count); iter != std::end(lit_count); std::advance(iter, 1))
     {
-        if (prop == 0)
+        if (version == Version::ONE_SIDED && iter->first->IsNot())
         {
             continue;
         }
 
         float size = 1;
         float score = 0;
-        for (int count : prop_count[prop])
+        for (int count : lit_count[iter->first])
         {
             if (count != 0)
             {
                 score += pow(2.0, -size);
             }
-            size++;
+            size += 1.0;
         }
 
-        prop_scores[prop] = score;
+        lit_scores[iter->first] = score;
     }
 
-    int max_prop = 1;
+    Literal* max_lit;
     float max_score = -1.0;
 
-    std::set<int> ties;
+    std::set<Literal*> ties;
     bool is_tie = false;
 
-    for (int prop = 1; prop <= num_vars; prop++)
+    for (auto iter = std::begin(lit_scores); iter != std::end(lit_scores); std::advance(iter, 1))
     {
-        float score = prop_scores[prop] + (version == Version::TWO_SIDED ? prop_scores[-prop] : 0);
+        if (iter->first->IsAsserted() || iter->first->GetInverse()->IsAsserted())
+        {
+            continue;
+        }
+
+        float score = lit_scores[iter->first] + (version == Version::TWO_SIDED ? lit_scores[iter->first->GetInverse()] : 0);
         if (score >= max_score)
         {
             if (abs(score - max_score) < float_error)
             {
                 is_tie = true;
-                ties.insert(prop);
+                ties.insert(iter->first);
             }
             else
             {
                 ties.clear();
                 is_tie = false;
-                ties.insert(prop);
+                ties.insert(iter->first);
 
                 max_score = score;
-                max_prop = prop;
+                max_lit = iter->first;
             }
         }
     }
 
-    // Randomly choose a proposition if there was a tie
+    // Randomly choose a literal if there was a tie
     if (is_tie)
     {
         auto iter = std::begin(ties);
         std::advance(iter, rand() % ties.size());
-        max_prop = *iter;
+        max_lit = *iter;
     }
 
     if (version == Version::TWO_SIDED)
     {
-        float reg_score = prop_scores[max_prop];
-        float not_score = prop_scores[-max_prop];
+        float reg_score = lit_scores[max_lit];
+        float not_score = lit_scores[max_lit->GetInverse()];
 
-        return raw_prop_map.at((reg_score >= not_score ? max_prop : -max_prop));
+        max_lit = reg_score >= not_score ? max_lit : max_lit->GetInverse();
     }
-    return raw_prop_map.at(max_prop);
+
+    if (set_lits.find(max_lit) != std::end(set_lits) || set_lits.find(max_lit->GetInverse()) != std::end(set_lits))
+    {
+        std::cout << "Choosing a lit that is already set" << std::endl;
+    }
+
+    return max_lit;
 
 }
