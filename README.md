@@ -1,3 +1,5 @@
+**Final report, project proposal, and presentation can be found in the 'documents' directory**
+
 # SAT Solver With Changeable Branching Algorithm
 
 This project is a [satisfiability](https://en.wikipedia.org/wiki/Boolean_satisfiability_problem) solver that allows you to change the branching algorithm used for choosing new literals to assert. Available algorithms are listed below. Currently, the backtracking algorithm used is the one used in [DPLL](https://en.wikipedia.org/wiki/DPLL_algorithm).
@@ -45,3 +47,12 @@ The verifier is used to verify that a solution given by the solver actually sati
 $ ./Verify -i test_data/aim-50-1_6-yes1-4.cnf -o output.txt
 This solution works.
 ```
+
+### Running the Benchmarker
+The benchmarker can be used to run the solver on many different files for all algorithms, aggregating the results to a .csv file. With the .cnf file which you would like to run the solver on in the 'formulas' directory, and the 'Solve' binary which you would like to test in the same directory as benchmark.py, run the benchmarker in the following way.
+
+```
+$ python3 benchmark.py 120.5
+```
+
+Where 120.5 is the maximum time an algorithm has to solve the problem.
