@@ -1,6 +1,6 @@
 # SAT Solver With Changeable Branching Algorithm
 
-This project is a [satisfiability](https://en.wikipedia.org/wiki/Boolean_satisfiability_problem) solver that allows you to change the branching algorithm used for choosing new propositions to assert. Available algorithms are listed below. Currently, the backtracking algorithm used is the one used in [DPLL](https://en.wikipedia.org/wiki/DPLL_algorithm).
+This project is a [satisfiability](https://en.wikipedia.org/wiki/Boolean_satisfiability_problem) solver that allows you to change the branching algorithm used for choosing new literals to assert. Available algorithms are listed below. Currently, the backtracking algorithm used is the one used in [DPLL](https://en.wikipedia.org/wiki/DPLL_algorithm).
 
 ### Algorithms Available
 
